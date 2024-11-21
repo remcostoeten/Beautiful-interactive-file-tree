@@ -1,8 +1,15 @@
 {
 	"compilerOptions": {
 		"jsx": "preserve",
-		"lib": ["dom", "dom.iterable", "esnext"],
-		"types": ["react", "react-dom"],
+		"lib": [
+			"dom",
+			"dom.iterable",
+			"esnext"
+		],
+		"types": [
+			"react",
+			"react-dom"
+		],
 		"moduleResolution": "bundler",
 		"allowJs": true,
 		"skipLibCheck": true,
@@ -21,9 +28,23 @@
 		],
 		"baseUrl": ".",
 		"paths": {
-			"@/*": ["./src/*"]
-		}
+			"@/*": [
+				"./src/*"
+			]
+		},
+		"typeRoots": [
+			"./node_modules/@types",
+			"./src/types"
+		]
 	},
-	"include": ["next-env.d.ts", ".next/types/**/*.ts", "**/*.ts", "**/*.tsx"],
-	"exclude": ["node_modules"]
+	"include": [
+		"next-env.d.ts",
+		".next/types/**/*.ts",
+		"**/*.ts",
+		"**/*.tsx",
+		"./src/types/**/*.d.ts"
+	],
+	"exclude": [
+		"node_modules"
+	]
 }

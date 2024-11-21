@@ -1,12 +1,12 @@
 'use client'
 
-import IDE from '@/components/features/ide/ide'
 import { Button } from '@/components/ui/button'
 import { getFileIcon } from '@/core/config/file-icons'
 import { projectStructure } from '@/core/config/tree-object'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Maximize2, X } from 'lucide-react'
 import { useState } from 'react'
+import IDE from './features/ide/ide'
 
 export default function ZenIDEModal() {
 	const [isZenMode, setIsZenMode] = useState(false)

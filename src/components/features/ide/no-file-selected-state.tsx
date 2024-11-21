@@ -12,7 +12,7 @@ const NoFileSelected = () => {
 			transition={{ duration: 0.5, ease: 'easeOut' }}
 		>
 			<motion.div
-				className="w-16 h-16 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center"
+				className="w-16 h-16 rounded-xl bg-zinc-900/50 flex items-center justify-center"
 				initial={{ rotate: 0 }}
 				animate={{ rotate: [0, 10, -10, 0] }}
 				transition={{

@@ -7,7 +7,7 @@ import {
 	useMotionValue,
 	useSpring
 } from 'framer-motion'
-import { Code2, File, Folder, GripVertical } from 'lucide-react'
+import { ChevronRight, File, Folder, GripVertical } from 'lucide-react'
 import * as React from 'react'
 import { Resizable } from 'react-resizable'
 import 'react-resizable/css/styles.css'
@@ -18,8 +18,8 @@ import type { FileIconConfig } from '../../../core/config/file-icons'
 import { useDebouncedCallback } from '../../../hooks/use-debounce'
 import { cn } from '../../../lib/utils'
 import FileViewer from './file-viewer'
-import SettingsPanel from './settings'
 import NoFileSelected from './no-file-selected-state'
+import SettingsPanel from './settings'
 
 interface FileExplorer {
 	name: string
@@ -37,6 +37,7 @@ interface IDEProps {
 	defaultOpen?: boolean
 	maxFilesOpen?: number
 	folderColor?: string
+	iconColor?: string
 	defaultSelectedPath?: string
 	colorfulIcons?: boolean
 	defaultSettings?: Partial<SettingsState>
@@ -62,8 +63,32 @@ type SetState = (
 	replace?: boolean | undefined
 ) => void
 
+// Add this helper function to get all paths except app folder
+const getAllPathsExceptApp = (
+	node: FileExplorer,
+	currentPath = ''
+): string[] => {
+	const paths: string[] = []
+	const fullPath = `${currentPath}/${node.name}`
+
+	// Don't add app folder path
+	if (node.type === 'directory' && node.name !== 'app') {
+		paths.push(fullPath)
+	}
+
+	if (node.children) {
+		node.children.forEach((child) => {
+			paths.push(...getAllPathsExceptApp(child, fullPath))
+		})
+	}
+
+	return paths
+}
+
+// Update the useFileStore initialization
 const useFileStore = create<FileStoreState>((set: SetState) => ({
-	expandedPaths: new Set<string>([]),
+	// Initialize with all paths expanded except app folder
+	expandedPaths: new Set<string>(['/project-root']), // Start with root expanded
 	selectedPath: null,
 	toggleExpanded: (path: string) =>
 		set((state: FileStoreState) => {
@@ -89,6 +114,7 @@ type FileTreeProps = {
 	defaultOpen?: boolean
 	maxFilesOpen?: number
 	folderColor?: string
+	iconColor?: string
 	colorfulIcons?: boolean
 	rootName?: string
 	showIndentGuides?: boolean
@@ -157,6 +183,7 @@ const FileTree: React.FC<FileTreeProps> = ({
 	defaultOpen,
 	maxFilesOpen,
 	folderColor,
+	iconColor,
 	colorfulIcons = false,
 	rootName = 'project-root',
 	showIndentGuides = true
@@ -170,9 +197,7 @@ const FileTree: React.FC<FileTreeProps> = ({
 		setOpenedFiles
 	} = useFileStore()
 	const fullPath = `${path}/${item.name}`
-	const isExpanded =
-		expandedPaths.has(fullPath) ||
-		(defaultOpen && item.type === 'directory')
+	const isExpanded = expandedPaths.has(fullPath)
 	const isSelected = selectedPath === fullPath
 
 	const isBinary = item.type === 'file' && isBinaryFile(item.name)
@@ -191,13 +216,17 @@ const FileTree: React.FC<FileTreeProps> = ({
 		handleFileSelect(filePath)
 	}
 
-	React.useEffect(() => {
-		if (item.type === 'directory' && defaultCollapsed) {
+	const handleClick = (e: React.MouseEvent) => {
+		e.stopPropagation()
+		if (item.type === 'directory') {
 			toggleExpanded(fullPath)
+		} else if (!isBinary) {
+			handleFileOpen(fullPath)
 		}
-	}, [fullPath, item.type, toggleExpanded, defaultCollapsed])
+	}
 
 	const getFileIconColor = (fileName: string) => {
+		if (iconColor) return iconColor
 		if (!colorfulIcons) return 'text-zinc-400'
 		const extension = Object.keys(FILE_ICON_COLORS).find((ext) =>
 			fileName.endsWith(ext)
@@ -206,31 +235,30 @@ const FileTree: React.FC<FileTreeProps> = ({
 	}
 
 	const getFolderColor = (folderName: string) => {
+		if (folderColor) return folderColor
 		if (!colorfulIcons) return 'text-zinc-400'
 		return FOLDER_COLORS[folderName] || 'text-zinc-400'
 	}
 
 	return (
-		<Reorder.Item value={item} id={fullPath} className="w-full">
+		<Reorder.Item
+			value={item}
+			id={fullPath}
+			key={`reorder-${fullPath}`}
+			className="w-full"
+		>
 			<motion.div
 				className={cn(
 					'flex items-center gap-2 py-1.5 px-2 text-sm group relative w-full',
 					isSelected ? 'bg-[#1e1e1e] text-zinc-100' : 'text-zinc-400',
 					!isBinary && 'cursor-pointer hover:text-zinc-300',
 					isBinary && 'cursor-not-allowed opacity-60',
-					'after:absolute after:bottom-0 after:left-2 after:right-2 after:h-[1px]',
-					'after:bg-gradient-to-r after:from-transparent after:via-zinc-800 after:to-transparent',
-					'after:opacity-0 hover:after:opacity-100',
-					'transition-all duration-200'
+					'transition-all duration-200',
+					item.type === 'directory' && 'hover:bg-zinc-800/50'
 				)}
 				style={{ paddingLeft: `${depth * 12 + 8}px` }}
-				onClick={() => {
-					if (item.type === 'directory') {
-						toggleExpanded(fullPath)
-					} else if (!isBinary) {
-						handleFileOpen(fullPath)
-					}
-				}}
+				onClick={handleClick}
+				whileHover={{ x: 4 }}
 				transition={{ duration: 0.2 }}
 			>
 				{showIndentGuides && depth > 0 && (
@@ -246,34 +274,69 @@ const FileTree: React.FC<FileTreeProps> = ({
 						))}
 					</div>
 				)}
-				<div className="flex items-center gap-2 flex-1">
+				<div className="flex items-center gap-2 min-w-0">
+					{item.type === 'directory' && (
+						<motion.div
+							initial={false}
+							animate={{
+								rotate: isExpanded ? 90 : 0
+							}}
+							transition={{
+								duration: 0.2,
+								type: 'spring',
+								stiffness: 200,
+								damping: 15
+							}}
+							className="w-4 h-4 flex items-center justify-center flex-shrink-0"
+						>
+							<ChevronRight className="w-4 h-4 text-zinc-400" />
+						</motion.div>
+					)}
+
 					{(depth > 0 || item.type === 'file') &&
 						(item.type === 'directory' ? (
 							<motion.div
 								initial={false}
-								animate={{ rotate: isExpanded ? 90 : 0 }}
-								transition={{ duration: 0.2 }}
+								animate={{
+									scale: isExpanded ? 1.1 : 1
+								}}
+								transition={{
+									duration: 0.2,
+									type: 'spring',
+									stiffness: 200,
+									damping: 15
+								}}
+								className="flex-shrink-0"
 							>
 								<Folder
 									className={cn(
-										'h-4 w-4',
-										getFolderColor(item.name)
+										'h-4 w-4 transition-colors duration-200',
+										getFolderColor(item.name),
+										isExpanded && 'text-violet-400'
 									)}
 								/>
 							</motion.div>
 						) : (
-							<File
-								className={cn(
-									'h-4 w-4',
-									isBinary
-										? 'text-zinc-600'
-										: getFileIconColor(item.name)
-								)}
-							/>
+							<motion.div
+								initial={{ scale: 0.8 }}
+								animate={{ scale: 1 }}
+								whileHover={{ scale: 1.1 }}
+								transition={{ duration: 0.2 }}
+								className="flex-shrink-0"
+							>
+								<File
+									className={cn(
+										'h-4 w-4',
+										isBinary
+											? 'text-zinc-600'
+											: getFileIconColor(item.name)
+									)}
+								/>
+							</motion.div>
 						))}
 					<span
 						className={cn(
-							'truncate text-sm flex-1',
+							'truncate text-sm',
 							isBinary && 'text-zinc-600',
 							depth === 0 && 'font-medium'
 						)}
@@ -290,22 +353,37 @@ const FileTree: React.FC<FileTreeProps> = ({
 			<AnimatePresence initial={false}>
 				{isExpanded && item.children && (
 					<motion.div
-						initial={{ height: 0, opacity: 0 }}
-						animate={{ height: 'auto', opacity: 1 }}
-						exit={{ height: 0, opacity: 0 }}
-						transition={{
-							duration: 0.2,
-							ease: [0.04, 0.62, 0.23, 0.98]
+						initial={{ height: 0, opacity: 0, y: -10 }}
+						animate={{
+							height: 'auto',
+							opacity: 1,
+							y: 0,
+							transition: {
+								height: { duration: 0.3 },
+								opacity: { duration: 0.2, delay: 0.1 },
+								y: { duration: 0.2, delay: 0.1 }
+							}
+						}}
+						exit={{
+							height: 0,
+							opacity: 0,
+							y: -10,
+							transition: {
+								height: { duration: 0.2 },
+								opacity: { duration: 0.1 },
+								y: { duration: 0.1 }
+							}
 						}}
 					>
 						<Reorder.Group
+							key={`group-${fullPath}`}
 							axis="y"
 							values={item.children}
 							onReorder={() => {}}
 						>
 							{item.children.map((child: FileExplorer) => (
 								<FileTree
-									key={child.name}
+									key={`${fullPath}-${child.name}`}
 									item={child}
 									path={fullPath}
 									depth={depth + 1}
@@ -314,6 +392,7 @@ const FileTree: React.FC<FileTreeProps> = ({
 									defaultOpen={defaultOpen}
 									maxFilesOpen={maxFilesOpen}
 									folderColor={folderColor}
+									iconColor={iconColor}
 									colorfulIcons={colorfulIcons}
 									rootName={rootName}
 									showIndentGuides={showIndentGuides}
@@ -336,6 +415,7 @@ type SettingsState = {
 	lineNumbers: boolean
 	wordWrap: boolean
 	showIndentGuides: boolean
+	bgOpacity: number
 }
 
 export default function IDE({
@@ -346,6 +426,7 @@ export default function IDE({
 	defaultOpen = true,
 	maxFilesOpen = 5,
 	folderColor,
+	iconColor,
 	defaultSelectedPath,
 	colorfulIcons = false,
 	defaultSettings = {},
@@ -362,6 +443,7 @@ export default function IDE({
 		lineNumbers: true,
 		wordWrap: false,
 		showIndentGuides: true,
+		bgOpacity: 100,
 		...defaultSettings
 	})
 
@@ -448,6 +530,15 @@ export default function IDE({
 		mouseY.set(e.clientY - rect.top)
 	}
 
+	// Add this effect to initialize expanded paths
+	React.useEffect(() => {
+		const initialPaths = getAllPathsExceptApp(root)
+		useFileStore.setState((state) => ({
+			...state,
+			expandedPaths: new Set(['/project-root', ...initialPaths])
+		}))
+	}, [root])
+
 	return (
 		<Card
 			className={cn(
@@ -457,6 +548,12 @@ export default function IDE({
 					: 'bg-white border-zinc-200',
 				settings.theme === 'dark' ? 'dark' : 'light'
 			)}
+			style={{
+				backgroundColor:
+					settings.theme === 'dark'
+						? `rgba(0, 0, 0, ${settings.bgOpacity / 100})`
+						: `rgba(255, 255, 255, ${settings.bgOpacity / 100})`
+			}}
 			onMouseMove={handleMouseMove}
 		>
 			{/* Gradient overlay */}
@@ -544,22 +641,26 @@ export default function IDE({
 						<ScrollArea className="h-[600px]">
 							<div className="p-2 pb-40">
 								<Reorder.Group
+									key="root-file-tree"
 									axis="y"
 									values={[root]}
 									onReorder={() => {}}
 								>
 									<FileTree
+										key={`file-tree-${root.name}`}
 										item={root}
 										defaultCollapsed={defaultCollapsed}
 										handleFileSelect={onSelect}
 										defaultOpen={defaultOpen}
 										maxFilesOpen={maxFilesOpen}
-										folderColor="text-zinc-400"
+										folderColor={folderColor}
+										iconColor={iconColor}
 										colorfulIcons={settings.colorfulIcons}
 										rootName={rootName}
 										showIndentGuides={
 											settings.showIndentGuides
 										}
+										depth={0}
 									/>
 								</Reorder.Group>
 							</div>
@@ -600,7 +701,7 @@ export default function IDE({
 							wordWrap={settings.wordWrap}
 						/>
 					) : (
-					<NoFileSelected/>
+						<NoFileSelected />
 					)}
 				</div>
 			</div>

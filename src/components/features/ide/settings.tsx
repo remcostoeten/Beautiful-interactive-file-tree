@@ -1,5 +1,6 @@
 'use client'
 
+import { Slider } from '@/components/ui/slider'
 import * as PopoverPrimitive from '@radix-ui/react-popover'
 import * as Tooltip from '@radix-ui/react-tooltip'
 import { motion, useDragControls } from 'framer-motion'
@@ -13,6 +14,8 @@ type SettingsState = {
 	activeTabColor: 'blue' | 'purple' | 'pink' | 'green' | 'orange'
 	lineNumbers: boolean
 	wordWrap: boolean
+	showIndentGuides: boolean
+	bgOpacity: number
 }
 
 type SettingsPanelProps = {
@@ -21,18 +24,49 @@ type SettingsPanelProps = {
 }
 
 const TAB_COLORS = {
-	blue: 'before:bg-blue-400',
-	purple: 'before:bg-purple-400',
-	pink: 'before:bg-pink-400',
-	green: 'before:bg-green-400',
-	orange: 'before:bg-orange-400'
+	blue: {
+		border: 'border-blue-500/50',
+		bg: 'bg-blue-500/10',
+		text: 'text-blue-400'
+	},
+	purple: {
+		border: 'border-purple-500/50',
+		bg: 'bg-purple-500/10',
+		text: 'text-purple-400'
+	},
+	pink: {
+		border: 'border-pink-500/50',
+		bg: 'bg-pink-500/10',
+		text: 'text-pink-400'
+	},
+	green: {
+		border: 'border-green-500/50',
+		bg: 'bg-green-500/10',
+		text: 'text-green-400'
+	},
+	orange: {
+		border: 'border-orange-500/50',
+		bg: 'bg-orange-500/10',
+		text: 'text-orange-400'
+	}
 } as const
 
-const CustomTooltip = ({ content, children }) => {
+type CustomTooltipProps = {
+	content: string
+	children: React.ReactNode
+}
+
+const CustomTooltip = ({ content, children }: CustomTooltipProps) => {
 	return (
 		<Tooltip.Provider>
 			<Tooltip.Root>
-				<Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
+				<Tooltip.Trigger asChild>
+					{React.Children.map(children, (child, index) =>
+						React.cloneElement(child as React.ReactElement, {
+							key: `tooltip-trigger-${index}`
+						})
+					)}
+				</Tooltip.Trigger>
 				<Tooltip.Portal>
 					<Tooltip.Content
 						className={cn(
@@ -67,7 +101,6 @@ export default function SettingsPanel({
 	]
 
 	const fontSizes = [12, 13, 14, 15, 16]
-	const tabColors = Object.keys(TAB_COLORS) as Array<keyof typeof TAB_COLORS>
 
 	return (
 		<PopoverPrimitive.Root>
@@ -91,16 +124,16 @@ export default function SettingsPanel({
 						dragMomentum={false}
 						dragElastic={0}
 					>
-						<motion.div
-							className="w-80 rounded-lg border border-zinc-800 bg-zinc-900/95 p-4 cursor-move"
-							onPointerDown={(e) => dragControls.start(e)}
-						>
-							<div className="flex items-center justify-between mb-4">
+						<motion.div className="w-80 rounded-lg border border-zinc-800 bg-zinc-900/95 p-4">
+							<div
+								className="flex items-center justify-between mb-4 cursor-move"
+								onPointerDown={(e) => dragControls.start(e)}
+							>
 								<h3 className="text-sm font-medium text-zinc-200">
 									Editor Settings
 								</h3>
-								<CustomTooltip content="Tip! You can move/drag this panel if it is covering the results of your configuration">
-									<button className="rounded-full p-1 hover:bg-zinc-800/50 transition-colors">
+								<CustomTooltip content="Tip! You can move/drag this panel by grabbing the header">
+									<button className="rounded-full p-1 hover:bg-zinc-800/50 transition-colors cursor-pointer">
 										<X
 											size={14}
 											className="text-zinc-400"
@@ -108,7 +141,7 @@ export default function SettingsPanel({
 									</button>
 								</CustomTooltip>
 							</div>
-							<div className="space-y-6">
+							<div className="space-y-6 cursor-default">
 								{/* Theme Selection */}
 								<div className="space-y-2">
 									<label className="text-xs font-medium text-zinc-400 flex items-center gap-2">
@@ -175,25 +208,32 @@ export default function SettingsPanel({
 										Tab Color
 									</label>
 									<div className="grid grid-cols-5 gap-2">
-										{tabColors.map((color) => (
-											<button
-												key={color}
-												onClick={() =>
-													onSettingsChange({
-														activeTabColor: color
-													})
-												}
-												className={cn(
-													'p-2 rounded-md border text-xs transition-all capitalize',
-													settings.activeTabColor ===
-														color
-														? `border-${color}-500/50 bg-${color}-500/10 text-${color}-400`
-														: 'border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-zinc-300'
-												)}
-											>
-												{color}
-											</button>
-										))}
+										{Object.entries(TAB_COLORS).map(
+											([color, classes]) => (
+												<button
+													key={`tab-color-${color}`}
+													onClick={() =>
+														onSettingsChange({
+															activeTabColor:
+																color as keyof typeof TAB_COLORS
+														})
+													}
+													className={cn(
+														'p-2 rounded-md border text-xs transition-all capitalize',
+														settings.activeTabColor ===
+															color
+															? [
+																	classes.border,
+																	classes.bg,
+																	classes.text
+																]
+															: 'border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-zinc-300'
+													)}
+												>
+													{color}
+												</button>
+											)
+										)}
 									</div>
 								</div>
 
@@ -257,6 +297,29 @@ export default function SettingsPanel({
 											</span>
 										</button>
 									</div>
+								</div>
+
+								{/* Add opacity slider */}
+								<div className="space-y-2 mt-4">
+									<label className="text-sm text-zinc-400 flex items-center gap-2">
+										<Palette className="w-4 h-4" />
+										Background Opacity
+									</label>
+									<Slider
+										value={[settings.bgOpacity]}
+										min={0}
+										max={100}
+										step={1}
+										onValueChange={(value) => {
+											onSettingsChange({
+												bgOpacity: value[0]
+											})
+										}}
+										className="w-full"
+									/>
+									<span className="text-xs text-zinc-500">
+										{settings.bgOpacity}%
+									</span>
 								</div>
 							</div>
 						</motion.div>

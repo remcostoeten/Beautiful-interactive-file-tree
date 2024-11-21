@@ -129,7 +129,7 @@ export function CodeBlock({
 	showLineNumbers = true,
 	enableLineHighlight = false,
 	showMetaInfo = true,
-	maxHeight = '600px',
+	maxHeight = '900px',
 	onCopy,
 	onLineClick,
 	onSearch,

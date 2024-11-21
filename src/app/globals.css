@@ -84,11 +84,9 @@ body {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background: linear-gradient(
-		to bottom,
-		rgba(0, 0, 0, 0.5),
-		rgba(0, 0, 0, 0)
-	);
+	background: linear-gradient(to bottom,
+			rgba(0, 0, 0, 0.5),
+			rgba(0, 0, 0, 0));
 	pointer-events: none;
 	/* Ensure it doesn't block clicks */
 	opacity: 1;
@@ -99,4 +97,53 @@ body {
 .file-tree.selected::before {
 	opacity: 1;
 	/* Keep it visible when a file is selected */
+}
+
+/* Webkit browsers (Chrome, Safari, newer Edge) */
+::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+}
+
+::-webkit-scrollbar-track {
+	background: #111111;
+}
+
+::-webkit-scrollbar-thumb {
+	background: #333333;
+	border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: #444444;
+}
+
+/* Firefox */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: #333333 #111111;
+}
+
+/* For the IDE specifically */
+.ide-container {
+	scrollbar-width: thin;
+	scrollbar-color: #333333 #111111;
+}
+
+.ide-container::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+}
+
+.ide-container::-webkit-scrollbar-track {
+	background: #111111;
+}
+
+.ide-container::-webkit-scrollbar-thumb {
+	background: #333333;
+	border-radius: 4px;
+}
+
+.ide-container::-webkit-scrollbar-thumb:hover {
+	background: #444444;
 }
