@@ -47,12 +47,12 @@ const TerminalOutput = () => {
 
 	return (
 		<motion.div
-			className="w-full max-w-2xl mx-auto lg:mx-0 mb-6"
+			className="w-full  mx-auto lg:mx-0 mb-6"
 			initial="hidden"
 			animate="visible"
 			variants={containerVariants}
 		>
-			<code className="text-sm rounded-xl p-4 bg-black/95 inline-block border border-white/20 font-mono shadow-md shadow-zinc-900/30 drop-shadow-md drop-shadow-zinc-900/50 bg-gradient-to-r from-transparent via-zinc-900/50 to-transparent">
+			<code className="w-fulltext-sm rounded-xl p-4 bg-black/95 inline-block border border-white/20 font-mono shadow-md shadow-zinc-900/30 drop-shadow-md drop-shadow-zinc-900/50 bg-gradient-to-r from-transparent via-zinc-900/50 to-transparent">
 				<motion.div
 					className="flex flex-wrap gap-x-2"
 					variants={containerVariants}

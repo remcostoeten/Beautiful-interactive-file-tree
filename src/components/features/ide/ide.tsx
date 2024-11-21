@@ -94,7 +94,6 @@ type FileTreeProps = {
 	showIndentGuides?: boolean
 }
 
-// Add this type to identify binary files
 type BinaryFileTypes =
 	| '.ico'
 	| '.woff'
@@ -107,7 +106,6 @@ type BinaryFileTypes =
 	| '.gif'
 	| '.webp'
 
-// Add this helper function
 const isBinaryFile = (fileName: string): boolean => {
 	const extension = fileName
 		.slice(fileName.lastIndexOf('.'))
@@ -127,21 +125,16 @@ const isBinaryFile = (fileName: string): boolean => {
 	return binaryExtensions.includes(extension)
 }
 
-// Add icon colors mapping
 const FILE_ICON_COLORS = {
-	// Config files
 	'tsconfig.json': 'text-blue-400',
 	'package.json': 'text-red-400',
 	'.env': 'text-green-400',
-	// Source files
 	'.tsx': 'text-blue-400',
 	'.ts': 'text-blue-400',
 	'.js': 'text-yellow-400',
 	'.jsx': 'text-yellow-400',
-	// Styles
 	'.css': 'text-sky-400',
 	'.scss': 'text-pink-400',
-	// Other
 	'.md': 'text-white',
 	'.json': 'text-yellow-400'
 } as const
@@ -607,7 +600,7 @@ export default function IDE({
 							wordWrap={settings.wordWrap}
 						/>
 					) : (
-						<NoFileSelected />
+					<NoFileSelected/>
 					)}
 				</div>
 			</div>
