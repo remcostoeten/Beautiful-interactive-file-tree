@@ -19,6 +19,7 @@ import { useDebouncedCallback } from '../../../hooks/use-debounce'
 import { cn } from '../../../lib/utils'
 import FileViewer from './file-viewer'
 import SettingsPanel from './settings'
+import NoFileSelected from './no-file-selected-state'
 
 interface FileExplorer {
 	name: string
@@ -606,20 +607,7 @@ export default function IDE({
 							wordWrap={settings.wordWrap}
 						/>
 					) : (
-						<div className="flex flex-col items-center justify-center h-full text-zinc-500 space-y-4">
-							<div className="w-16 h-16 rounded-xl bg-zinc-900/50 flex items-center justify-center">
-								<Code2 size={24} className="text-zinc-600" />
-							</div>
-							<div className="text-center space-y-1">
-								<p className="text-sm font-medium">
-									No file selected
-								</p>
-								<p className="text-xs text-zinc-600">
-									Select a file from the sidebar to view its
-									contents
-								</p>
-							</div>
-						</div>
+						<NoFileSelected />
 					)}
 				</div>
 			</div>

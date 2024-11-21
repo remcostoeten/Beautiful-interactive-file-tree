@@ -1,5 +1,6 @@
 'use client'
 
+import ApiDocumentation from '@/components/api-documentation'
 import PropsTable from '@/components/api-renderer'
 import { CodeBlock } from '@/components/code-block/code-block'
 import FeatureCard from '@/components/features/FeatureCard'
@@ -8,37 +9,36 @@ import Logo from '@/components/logo'
 import PreCode from '@/components/PreCode'
 import TerminalOutput from '@/components/terminal-output'
 import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { apiProps } from '@/core/config/api-props'
 import { USAGE_EXAMPLE } from '@/core/config/code-examples'
 import { getFileIcon } from '@/core/config/file-icons'
 import { projectStructure } from '@/core/config/tree-object'
 import useCursorGradient from '@/hooks/useCursorGradient'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs'
 import {
-	AnimatePresence,
-	motion,
-	stagger,
-	useAnimate,
 	useScroll,
-	useTransform
+	useTransform,
+	useAnimate,
+	stagger,
+	motion,
+	AnimatePresence
 } from 'framer-motion'
 import {
-	Code2,
-	Github,
-	Heart,
-	Maximize2,
 	Terminal,
 	Wand2,
-	X
+	Code2,
+	Link,
+	Github,
+	Maximize2,
+	X,
+	Heart
 } from 'lucide-react'
-import Link from 'next/link'
-import { useEffect, useRef, useState } from 'react'
-
-const containerClass = 'max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8'
+import { useState, useRef, useEffect } from 'react'
 
 export default function LandingPage() {
 	const [isZenMode, setIsZenMode] = useState(false)
 	const containerRef = useRef<HTMLDivElement>(null)
+
 	const { scrollYProgress } = useScroll({
 		target: containerRef,
 		offset: ['start start', 'end start']
@@ -108,7 +108,7 @@ export default function LandingPage() {
 
 			{/* Announcement Banner */}
 			<div className="relative bg-gradient-to-r from-violet-500/20 via-fuchsia-500/20 to-violet-500/20 border-b border-white/10">
-				<div className={containerClass}>
+				<div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
 					<div className="py-1 text-center text-xs text-zinc-400">
 						<span className="font-medium text-white">
 							Beta release!
@@ -121,9 +121,7 @@ export default function LandingPage() {
 
 			{/* Header */}
 			<header className="sticky top-0 z-50 border-b border-white/10 bg-black/50 backdrop-blur-sm">
-				<nav
-					className={`${containerClass} h-12 flex items-center justify-between`}
-				>
+				<nav className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 h-12 flex items-center justify-between">
 					<div className="flex items-center gap-8">
 						<Logo size="sm" fill="#a1a1aa" />
 						<div className="hidden md:flex items-center gap-6">
@@ -157,17 +155,10 @@ export default function LandingPage() {
 			>
 				<motion.div
 					style={{ opacity, scale }}
-					className={containerClass}
+					className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8"
 				>
 					<div className="flex flex-col lg:flex-row items-center gap-8">
-						{/* Left side - more compact */}
 						<div className="flex-1 text-center lg:text-left">
-							<motion.div className="stagger-fade flex items-center justify-center lg:justify-start gap-2 mb-4">
-								<Code2 className="w-4 h-4 text-violet-400" />
-								<span className="text-xs font-medium text-violet-400">
-									Interactive File Explorer
-								</span>
-							</motion.div>
 							<motion.h1 className="stagger-fade text-balance text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-300 to-zinc-500 mb-6">
 								Even your minified code{' '}
 								<span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-500">
@@ -181,7 +172,7 @@ export default function LandingPage() {
 								<PreCode>Tailwind CSS</PreCode> and{' '}
 								<PreCode>Motion</PreCode>. Generates your
 								complete tree structures with a simple{' '}
-								<PreCode>python</PreCode> script.
+								<PreCode>Python</PreCode> script.
 							</motion.p>
 
 							<motion.div className="stagger-fade flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
@@ -196,7 +187,7 @@ export default function LandingPage() {
 							</motion.div>
 						</div>
 
-						<div className="w-[65%]">
+						<div className="lg:w-[65%]">
 							<motion.div
 								style={{
 									rotateX: useTransform(
@@ -211,7 +202,7 @@ export default function LandingPage() {
 									),
 									perspective: 1000
 								}}
-								className="stagger-scale rounded-lg border border-white/10 overflow-hidden preserve-3d"
+								className="stagger-scale rounded-lg  border-white/10 overflow-hidden preserve-3d"
 							>
 								<motion.div
 									style={{
@@ -226,6 +217,7 @@ export default function LandingPage() {
 											[1, 0.7]
 										)
 									}}
+									className="space-y-4"
 								>
 									<Tabs
 										defaultValue="demo"
@@ -333,7 +325,7 @@ export default function LandingPage() {
 
 			{/* Features Grid */}
 			<section className="relative border-t border-white/10 py-24">
-				<div className={containerClass}>
+				<div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 						{features.map((feature, index) => (
 							<FeatureCard
@@ -346,29 +338,7 @@ export default function LandingPage() {
 				</div>
 			</section>
 
-			{/* API Documentation Section */}
-			<section className="relative border-t border-white/10 bg-black/50 backdrop-blur-sm">
-				<div className={`${containerClass} py-24`}>
-					<div className="flex flex-col items-center gap-12">
-						<h2 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-violet-300 to-purple-500">
-							API Documentation
-						</h2>
-						<PropsTable
-							sections={apiProps}
-							showTypeColumn={true}
-							showDefaultColumn={true}
-							searchable={true}
-							collapsible={true}
-							showVersionBadges={true}
-							showBetaBadges={true}
-							initialTheme="dark"
-							initialSpacing="normal"
-							initialPropSpacing="normal"
-							className="w-full"
-						/>
-					</div>
-				</div>
-			</section>
+			<ApiDocumentation />
 
 			{/* Zen Mode */}
 			<AnimatePresence>
@@ -409,7 +379,7 @@ export default function LandingPage() {
 			{/* Footer */}
 			<div style={{ width: '90vw', margin: '0 auto', padding: '20px' }}>
 				<footer className="relative border-t border-white/10 py-8">
-					<div className={containerClass}>
+					<div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
 						<p className="text-sm text-zinc-400 flex items-center justify-center gap-2">
 							Made with{' '}
 							<Heart className="w-4 h-4 text-red-500 animate-pulse" />{' '}
