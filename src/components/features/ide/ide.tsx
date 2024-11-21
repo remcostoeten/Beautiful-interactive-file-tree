@@ -3,7 +3,6 @@
 import {
 	AnimatePresence,
 	motion,
-	Reorder,
 	useMotionValue,
 	useSpring
 } from 'framer-motion'
@@ -19,7 +18,6 @@ import { useDebouncedCallback } from '../../../hooks/use-debounce'
 import { cn } from '../../../lib/utils'
 import FileViewer from './file-viewer'
 import NoFileSelected from './no-file-selected-state'
-import SettingsPanel from './settings'
 
 interface FileExplorer {
 	name: string
@@ -241,12 +239,7 @@ const FileTree: React.FC<FileTreeProps> = ({
 	}
 
 	return (
-		<Reorder.Item
-			value={item}
-			id={fullPath}
-			key={`reorder-${fullPath}`}
-			className="w-full"
-		>
+		<div className="w-full">
 			<motion.div
 				className={cn(
 					'flex items-center gap-2 py-1.5 px-2 text-sm group relative w-full',
@@ -375,12 +368,7 @@ const FileTree: React.FC<FileTreeProps> = ({
 							}
 						}}
 					>
-						<Reorder.Group
-							key={`group-${fullPath}`}
-							axis="y"
-							values={item.children}
-							onReorder={() => {}}
-						>
+						<div className="space-y-1">
 							{item.children.map((child: FileExplorer) => (
 								<FileTree
 									key={`${fullPath}-${child.name}`}
@@ -398,11 +386,11 @@ const FileTree: React.FC<FileTreeProps> = ({
 									showIndentGuides={showIndentGuides}
 								/>
 							))}
-						</Reorder.Group>
+						</div>
 					</motion.div>
 				)}
 			</AnimatePresence>
-		</Reorder.Item>
+		</div>
 	)
 }
 
@@ -434,8 +422,8 @@ export default function IDE({
 	showIndentGuides = true,
 	customIcons
 }: IDEProps) {
-	// Initialize settings with defaults
-	const [settings, setSettings] = React.useState<SettingsState>({
+	const [mounted, setMounted] = React.useState(false)
+	const [settings, setSettings] = React.useState<SettingsState>(() => ({
 		theme: theme,
 		colorfulIcons: colorfulIcons,
 		fontSize: 13,
@@ -445,7 +433,11 @@ export default function IDE({
 		showIndentGuides: true,
 		bgOpacity: 100,
 		...defaultSettings
-	})
+	}))
+
+	React.useEffect(() => {
+		setMounted(true)
+	}, [])
 
 	const { selectedPath, openedFiles, setSelectedPath, setOpenedFiles } =
 		useFileStore()
@@ -539,6 +531,12 @@ export default function IDE({
 		}))
 	}, [root])
 
+	const [isMounted, setIsMounted] = React.useState(false)
+
+	React.useEffect(() => {
+		setIsMounted(true)
+	}, [])
+
 	return (
 		<Card
 			className={cn(
@@ -627,29 +625,15 @@ export default function IDE({
 								: 'border-zinc-200/30 bg-white'
 						)}
 					>
-						<div className="absolute top-2 right-2 z-10">
-							<SettingsPanel
-								settings={settings}
-								onSettingsChange={(newSettings) =>
-									setSettings((prev) => ({
-										...prev,
-										...newSettings
-									}))
-								}
-							/>
-						</div>
+
 						<ScrollArea className="h-[600px]">
 							<div className="p-2 pb-40">
-								<Reorder.Group
-									key="root-file-tree"
-									axis="y"
-									values={[root]}
-									onReorder={() => {}}
-								>
+								<div className="space-y-1">
 									<FileTree
 										key={`file-tree-${root.name}`}
 										item={root}
 										defaultCollapsed={defaultCollapsed}
+
 										handleFileSelect={onSelect}
 										defaultOpen={defaultOpen}
 										maxFilesOpen={maxFilesOpen}
@@ -662,7 +646,7 @@ export default function IDE({
 										}
 										depth={0}
 									/>
-								</Reorder.Group>
+								</div>
 							</div>
 						</ScrollArea>
 						<div className="absolute bottom-0 left-0 right-0 pointer-events-none">
