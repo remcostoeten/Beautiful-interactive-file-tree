@@ -6,6 +6,7 @@ import FeatureCard from '@/components/features/FeatureCard'
 import IDE from '@/components/features/ide/ide'
 import Logo from '@/components/logo'
 import PreCode from '@/components/PreCode'
+import TerminalOutput from '@/components/terminal-output'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { apiProps } from '@/core/config/api-props'
@@ -94,7 +95,6 @@ export default function LandingPage() {
 			ref={scope}
 			className="min-h-screen bg-black selection:bg-violet-500/20 selection:text-violet-200"
 		>
-			{/* Cursor Gradient */}
 			<div
 				className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-300"
 				style={{
@@ -178,10 +178,12 @@ export default function LandingPage() {
 								A powerful <PreCode>React</PreCode> component
 								for file structure visualization. Built with{' '}
 								<PreCode>TypeScript</PreCode> and{' '}
-								<PreCode>Tailwind CSS</PreCode>. Generates
+								<PreCode>Tailwind CSS</PreCode> and{' '}
+								<PreCode>Motion</PreCode>. Generates your
 								complete tree structures with a simple{' '}
-								<PreCode>typescript</PreCode> script.
+								<PreCode>python</PreCode> script.
 							</motion.p>
+
 							<motion.div className="stagger-fade flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
 								<Button
 									size="lg"
@@ -194,7 +196,6 @@ export default function LandingPage() {
 							</motion.div>
 						</div>
 
-						{/* IDE section - fixed width */}
 						<div className="w-[65%]">
 							<motion.div
 								style={{
@@ -322,6 +323,7 @@ export default function LandingPage() {
 											/>
 										</TabsContent>
 									</Tabs>
+									<TerminalOutput />
 								</motion.div>
 							</motion.div>
 						</div>

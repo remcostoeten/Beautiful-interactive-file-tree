@@ -733,7 +733,7 @@ export default function PropsTable({
 	return (
 		<div
 			className={cn(
-				'w-full rounded-xl backdrop-blur-sm border',
+				'w-full rounded-xl backdrop-blur-sm',
 				SPACING_CONFIG.section[initialSpacing],
 				currentTheme.background,
 				currentTheme.border,
@@ -754,7 +754,7 @@ export default function PropsTable({
 							type="text"
 							placeholder="Search props..."
 							className={cn(
-								'w-full pl-10 pr-4 py-3 rounded-lg text-sm transition-colors',
+								'w-full pl-10 pr-4 py-3 rounded-xl text-sm transition-colors',
 								currentTheme.input.background,
 								currentTheme.input.border,
 								currentTheme.input.focus,
