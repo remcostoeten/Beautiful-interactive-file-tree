@@ -21,7 +21,7 @@ export default function Header({ onZenMode }: HeaderProps) {
                         asChild
                     >
                         <a
-                            href="https://github.com/remcostoeten/ide-component"
+                            href="https://github.com/remcostoeten/Beautiful-interactive-file-tree"
                             className="flex items-center gap-2"
                         >
                             <Github className="w-5 h-5" />

@@ -18,6 +18,7 @@ import { useDebouncedCallback } from '../../../hooks/use-debounce'
 import { cn } from '../../../lib/utils'
 import FileViewer from './file-viewer'
 import NoFileSelected from './no-file-selected-state'
+import SettingsPanel from './settings'
 
 interface FileExplorer {
 	name: string
@@ -625,7 +626,19 @@ export default function IDE({
 								: 'border-zinc-200/30 bg-white'
 						)}
 					>
-
+						{mounted && (
+							<div className="absolute top-2 right-2 z-10">
+								<SettingsPanel
+									settings={settings}
+									onSettingsChange={(newSettings) =>
+										setSettings((prev) => ({
+											...prev,
+											...newSettings
+										}))
+									}
+								/>
+							</div>
+						)}
 						<ScrollArea className="h-[600px]">
 							<div className="p-2 pb-40">
 								<div className="space-y-1">
