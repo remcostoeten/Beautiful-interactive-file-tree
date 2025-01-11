@@ -27,11 +27,7 @@ export default function ZenIDEModal({ isOpen, onClose }: ZenIDEModalProps) {
 						<h2 className="text-xl font-bold text-white">
 							Zen Mode
 						</h2>
-						<Button
-							variant="ghost"
-							size="icon"
-							onClick={onClose}
-						>
+						<Button variant="ghost" size="icon" onClick={onClose}>
 							<X className="w-6 h-6" />
 						</Button>
 					</div>

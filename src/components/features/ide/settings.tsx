@@ -61,9 +61,7 @@ const CustomTooltip = ({ content, children }: CustomTooltipProps) => {
 	return (
 		<Tooltip.Provider>
 			<Tooltip.Root>
-				<Tooltip.Trigger asChild>
-					{children}
-				</Tooltip.Trigger>
+				<Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
 				<Tooltip.Portal>
 					<Tooltip.Content
 						className={cn(
@@ -103,9 +101,19 @@ export default function SettingsPanel({
 	}
 
 	const themeOptions = [
-		{ id: 'light-theme', value: 'light' as const, icon: Sun, label: 'Light' },
+		{
+			id: 'light-theme',
+			value: 'light' as const,
+			icon: Sun,
+			label: 'Light'
+		},
 		{ id: 'dark-theme', value: 'dark' as const, icon: Moon, label: 'Dark' },
-		{ id: 'system-theme', value: 'system' as const, icon: Smartphone, label: 'System' }
+		{
+			id: 'system-theme',
+			value: 'system' as const,
+			icon: Smartphone,
+			label: 'System'
+		}
 	]
 
 	const fontSizes = [
@@ -134,12 +142,18 @@ export default function SettingsPanel({
 				<AnimatePresence mode="sync">
 					{open && mounted && (
 						<PopoverPrimitive.Portal forceMount>
-							<PopoverPrimitive.Content className="z-50" forceMount>
+							<PopoverPrimitive.Content
+								className="z-50"
+								forceMount
+							>
 								<motion.div
 									initial={{ opacity: 0, scale: 0.95 }}
 									animate={{ opacity: 1, scale: 1 }}
 									exit={{ opacity: 0, scale: 0.95 }}
-									transition={{ duration: 0.2, ease: 'easeOut' }}
+									transition={{
+										duration: 0.2,
+										ease: 'easeOut'
+									}}
 									className="fixed"
 								>
 									<motion.div
@@ -152,7 +166,9 @@ export default function SettingsPanel({
 									>
 										<div
 											className="flex items-center justify-between mb-4 cursor-move"
-											onPointerDown={(e) => dragControls.start(e)}
+											onPointerDown={(e) =>
+												dragControls.start(e)
+											}
 										>
 											<h3 className="text-sm font-medium text-zinc-200">
 												Editor Settings
@@ -161,83 +177,127 @@ export default function SettingsPanel({
 												onClick={() => setOpen(false)}
 												className="rounded-full p-1 hover:bg-zinc-800/50 transition-colors cursor-pointer"
 											>
-												<X size={14} className="text-zinc-400" />
+												<X
+													size={14}
+													className="text-zinc-400"
+												/>
 											</button>
 										</div>
 										<div className="space-y-6 cursor-default">
 											{/* Theme Selection */}
 											<div className="space-y-2">
 												<label className="text-xs font-medium text-zinc-400 flex items-center gap-2">
-													<Sun className="w-3 h-3" /> Theme
+													<Sun className="w-3 h-3" />{' '}
+													Theme
 												</label>
 												<div className="grid grid-cols-3 gap-2">
-													{themeOptions.map(({ id, value, icon: Icon, label }) => (
-														<button
-															key={id}
-															onClick={() => onSettingsChange({ theme: value })}
-															className={cn(
-																'flex flex-col items-center gap-1 p-2 rounded-md border transition-all',
-																settings.theme === value
-																	? 'border-blue-500/50 bg-blue-500/10 text-blue-400'
-																	: 'border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-zinc-300'
-															)}
-														>
-															<Icon size={14} />
-															<span className="text-xs">
-																{label}
-															</span>
-														</button>
-													))}
+													{themeOptions.map(
+														({
+															id,
+															value,
+															icon: Icon,
+															label
+														}) => (
+															<button
+																key={id}
+																onClick={() =>
+																	onSettingsChange(
+																		{
+																			theme: value
+																		}
+																	)
+																}
+																className={cn(
+																	'flex flex-col items-center gap-1 p-2 rounded-md border transition-all',
+																	settings.theme ===
+																		value
+																		? 'border-blue-500/50 bg-blue-500/10 text-blue-400'
+																		: 'border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-zinc-300'
+																)}
+															>
+																<Icon
+																	size={14}
+																/>
+																<span className="text-xs">
+																	{label}
+																</span>
+															</button>
+														)
+													)}
 												</div>
 											</div>
 
 											{/* Font Size */}
 											<div className="space-y-2">
 												<label className="text-xs font-medium text-zinc-400 flex items-center gap-2">
-													<Type className="w-3 h-3" /> Font Size
+													<Type className="w-3 h-3" />{' '}
+													Font Size
 												</label>
 												<div className="grid grid-cols-5 gap-2">
-													{fontSizes.map(({ id, size }) => (
-														<button
-															key={id}
-															onClick={() => onSettingsChange({ fontSize: size })}
-															className={cn(
-																'p-2 rounded-md border text-xs transition-all',
-																settings.fontSize === size
-																	? 'border-blue-500/50 bg-blue-500/10 text-blue-400'
-																	: 'border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-zinc-300'
-															)}
-														>
-															{size}px
-														</button>
-													))}
+													{fontSizes.map(
+														({ id, size }) => (
+															<button
+																key={id}
+																onClick={() =>
+																	onSettingsChange(
+																		{
+																			fontSize:
+																				size
+																		}
+																	)
+																}
+																className={cn(
+																	'p-2 rounded-md border text-xs transition-all',
+																	settings.fontSize ===
+																		size
+																		? 'border-blue-500/50 bg-blue-500/10 text-blue-400'
+																		: 'border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-zinc-300'
+																)}
+															>
+																{size}px
+															</button>
+														)
+													)}
 												</div>
 											</div>
 
 											{/* Tab Color */}
 											<div className="space-y-2">
 												<label className="text-xs font-medium text-zinc-400 flex items-center gap-2">
-													<Palette className="w-3 h-3" /> Active Tab Color
+													<Palette className="w-3 h-3" />{' '}
+													Active Tab Color
 												</label>
 												<div className="grid grid-cols-5 gap-2">
-													{Object.entries(TAB_COLORS).map(([color, classes]) => (
-														<button
-															key={`tab-color-${color}`}
-															onClick={() =>
-																onSettingsChange({
-																	activeTabColor: color as keyof typeof TAB_COLORS
-																})
-															}
-															className={cn(
-																'p-2 rounded-md border text-xs transition-all capitalize',
-																settings.activeTabColor === color
-																	? [classes.border, classes.bg, classes.text]
-																	: 'border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-zinc-300'
-															)}
-														>
-															{color}
-														</button>
-													))}
+													{Object.entries(
+														TAB_COLORS
+													).map(
+														([color, classes]) => (
+															<button
+																key={`tab-color-${color}`}
+																onClick={() =>
+																	onSettingsChange(
+																		{
+																			activeTabColor:
+																				color as keyof typeof TAB_COLORS
+																		}
+																	)
+																}
+																className={cn(
+																	'p-2 rounded-md border text-xs transition-all capitalize',
+																	settings.activeTabColor ===
+																		color
+																		? [
+																				classes.border,
+																				classes.bg,
+																				classes.text
+																			]
+																		: 'border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-zinc-300'
+																)}
+															>
+																{color}
+															</button>
+														)
+													)}
 												</div>
 											</div>
 
@@ -252,34 +312,63 @@ export default function SettingsPanel({
 															id: 'colorful-icons',
 															label: 'Colorful Icons',
 															value: settings.colorfulIcons,
-															onChange: () => onSettingsChange({ colorfulIcons: !settings.colorfulIcons })
+															onChange: () =>
+																onSettingsChange(
+																	{
+																		colorfulIcons:
+																			!settings.colorfulIcons
+																	}
+																)
 														},
 														{
 															id: 'line-numbers',
 															label: 'Show Line Numbers',
 															value: settings.lineNumbers,
-															onChange: () => onSettingsChange({ lineNumbers: !settings.lineNumbers })
+															onChange: () =>
+																onSettingsChange(
+																	{
+																		lineNumbers:
+																			!settings.lineNumbers
+																	}
+																)
 														},
 														{
 															id: 'word-wrap',
 															label: 'Word Wrap',
 															value: settings.wordWrap,
-															onChange: () => onSettingsChange({ wordWrap: !settings.wordWrap })
+															onChange: () =>
+																onSettingsChange(
+																	{
+																		wordWrap:
+																			!settings.wordWrap
+																	}
+																)
 														}
-													].map(({ id, label, value, onChange }) => (
-														<button
-															key={id}
-															onClick={onChange}
-															className={cn(
-																'w-full flex items-center justify-between p-2 rounded-md border transition-all',
-																value
-																	? 'border-blue-500/50 bg-blue-500/10 text-blue-400'
-																	: 'border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-zinc-300'
-															)}
-														>
-															<span className="text-xs">{label}</span>
-														</button>
-													))}
+													].map(
+														({
+															id,
+															label,
+															value,
+															onChange
+														}) => (
+															<button
+																key={id}
+																onClick={
+																	onChange
+																}
+																className={cn(
+																	'w-full flex items-center justify-between p-2 rounded-md border transition-all',
+																	value
+																		? 'border-blue-500/50 bg-blue-500/10 text-blue-400'
+																		: 'border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-zinc-300'
+																)}
+															>
+																<span className="text-xs">
+																	{label}
+																</span>
+															</button>
+														)
+													)}
 												</div>
 											</div>
 

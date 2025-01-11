@@ -646,7 +646,6 @@ export default function IDE({
 										key={`file-tree-${root.name}`}
 										item={root}
 										defaultCollapsed={defaultCollapsed}
-
 										handleFileSelect={onSelect}
 										defaultOpen={defaultOpen}
 										maxFilesOpen={maxFilesOpen}
