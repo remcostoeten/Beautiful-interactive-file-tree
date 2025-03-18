@@ -15,9 +15,9 @@ import {
 } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { cn } from '../../lib/utils'
+import { cn } from '../../../lib/utils'
 
-import { Button } from '../../../@/components/ui/button'
+import { Button } from '../../../../@/components/ui/button'
 import { ANIMATION_VARIANTS, COPY_VARIANTS, TOAST_VARIANTS } from './animations'
 import { customTheme } from './custom-theme'
 import * as Icons from './icons'

@@ -243,7 +243,7 @@ const FileTree: React.FC<FileTreeProps> = ({
 		<div className="w-full">
 			<motion.div
 				className={cn(
-					'flex items-center gap-2 py-1.5 px-2 text-sm group relative w-full',
+					'flex scale-items-center gap-2 py-1.5 px-2 text-sm group relative w-full',
 					isSelected ? 'bg-[#1e1e1e] text-zinc-100' : 'text-zinc-400',
 					!isBinary && 'cursor-pointer hover:text-zinc-300',
 					isBinary && 'cursor-not-allowed opacity-60',

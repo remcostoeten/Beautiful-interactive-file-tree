@@ -1,7 +1,7 @@
 'use client'
 
 import ApiDocumentation from '@/components/api-documentation'
-import { CodeBlock } from '@/components/code-block/code-block'
+import { CodeBlock } from '@/components/features/code-block/code-block'
 import FeatureCard from '@/components/features/FeatureCard'
 import IDE from '@/components/features/ide/ide'
 import Header from '@/components/header'

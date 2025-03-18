@@ -5,8 +5,8 @@ import { X } from 'lucide-react'
 import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { ScrollArea } from '../../../../@/components/ui/scroll-area'
 import { cn } from '../../../lib/utils'
-import { customTheme } from '../../code-block/custom-theme'
-import { customLightTheme } from '../../code-block/light-theme'
+import { customTheme } from '../code-block/custom-theme'
+import { customLightTheme } from '../code-block/light-theme'
 
 type FileViewerProps = {
 	content?: string
