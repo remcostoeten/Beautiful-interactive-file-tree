@@ -1,8 +1,36 @@
-node_modules
-.next
-dist
-build
-.contentlayer
-public
-tmp
-_templates
+# Dependencies
+node_modules/
+bun.lockb
+package-lock.json
+yarn.lock
+
+# Build outputs
+.next/
+out/
+build/
+dist/
+
+# Environment files
+.env*
+
+# Generated files
+next-env.d.ts
+
+# Config files
+*.config.js
+*.config.mjs
+*.config.ts
+
+# Log files
+*.log
+
+# Coverage
+coverage/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

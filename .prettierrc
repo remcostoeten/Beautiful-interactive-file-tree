@@ -1,19 +1,13 @@
 {
-	"useTabs": true,
-	"tabWidth": 4,
-	"singleQuote": true,
-	"semi": false,
-	"trailingComma": "none",
-	"overrides": [
-		{
-			"files": ["*.tsx", "*.ts", "*.scss", "*.css", "*.mdx"],
-			"options": {
-				"useTabs": true,
-				"tabWidth": 4,
-				"singleQuote": true,
-				"semi": false,
-				"trailingComma": "none"
-			}
-		}
-	]
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "none",
+    "tabWidth": 4,
+    "useTabs": false,
+    "printWidth": 80,
+    "bracketSpacing": true,
+    "arrowParens": "avoid",
+    "endOfLine": "lf",
+    "bracketSameLine": false,
+    "jsxSingleQuote": true
 }
