@@ -109,7 +109,9 @@ const eslintConfig = [
             'build/**',
             'next-env.d.ts',
             '*.config.js',
-            '*.config.mjs'
+            '*.config.mjs',
+            'src/**/ui/**',
+            'src/hooks/src/components/ui/**'
         ]
     }
 ]

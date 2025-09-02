@@ -1,18 +1,40 @@
 import './globals.css'
+import '../styles/view-transitions.css'
 
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Geist, Geist_Mono, Inter, JetBrains_Mono } from 'next/font/google'
 
 import { Providers } from '../components/providers'
 
+// Primary fonts with optimized loading
+const inter = Inter({
+    variable: '--font-inter',
+    subsets: ['latin'],
+    display: 'swap',
+    preload: true,
+    fallback: ['system-ui', 'arial']
+})
+
+const jetbrainsMono = JetBrains_Mono({
+    variable: '--font-jetbrains-mono',
+    subsets: ['latin'],
+    display: 'swap',
+    preload: true,
+    fallback: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas']
+})
+
 const geistSans = Geist({
     variable: '--font-geist-sans',
-    subsets: ['latin']
+    subsets: ['latin'],
+    display: 'swap',
+    fallback: ['system-ui', 'arial']
 })
 
 const geistMono = Geist_Mono({
     variable: '--font-geist-mono',
-    subsets: ['latin']
+    subsets: ['latin'],
+    display: 'swap',
+    fallback: ['ui-monospace', 'SFMono-Regular']
 })
 
 export const metadata: Metadata = {
@@ -26,9 +48,9 @@ export default function RootLayout({
     children: React.ReactNode
 }>) {
     return (
-        <html lang='en'>
+        <html lang='en' suppressHydrationWarning>
             <body
-                className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+                className={`${inter.variable} ${jetbrainsMono.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
             >
                 <Providers>{children}</Providers>
             </body>
