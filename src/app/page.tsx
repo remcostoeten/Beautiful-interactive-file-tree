@@ -27,9 +27,8 @@ function App() {
           <div className='max-w-7xl mx-auto'>
             <CodeViewer 
               theme="dark"
-              defaultDarkTheme="atom-one-dark"
-              defaultLightTheme="atom-one-light"
-              component={data} 
+              component={data}
+              enableThemePicker={true}
             />
           </div>
         </div>

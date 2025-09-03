@@ -154,7 +154,7 @@ export function FileViewerSkeleton({ className }: TProps) {
 
 export function FileViewerSkeletonCompact({ className }: TProps) {
   return (
-    <div className={cn("min-h-[600px] rounded-lg border overflow-hidden bg-card", className)}>
+    <div className={cn("min-h-[600px] rounded-lg border overflow-hidden bg-background", className)}>
       <div className="flex items-center justify-center h-full">
         <div className="flex flex-col items-center gap-4 p-8">
           <div className="flex gap-2">

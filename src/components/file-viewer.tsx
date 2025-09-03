@@ -6,6 +6,10 @@ import React, { createContext, startTransition, useCallback, useContext, useEffe
 import { createHighlighter } from "shiki";
 import { toast } from "sonner";
 
+import { getAllShikiThemeNames, resolveShikiTheme } from "@/lib/shiki-themes";
+import { useShikiTheme } from "@/hooks/use-shiki-theme";
+import { CompactThemePicker } from "@/components/theme-picker";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ResizablePanel } from "@/components/ui/resizable";
@@ -56,30 +60,27 @@ function useTree(): TCtx {
 
 function ShikiViewer({
   code,
-  /* The language for icon placement and syntax highlighting */
   lang = "tsx",
-  /* Whether to show line numbers */
   showLineNumbers = true,
-  /* The class name for the code block */
   className,
-  theme,
-  defaultDarkTheme,
-  defaultLightTheme,
+  selectedTheme,
   ...props
 }: {
   code: string;
   lang?: string;
   showLineNumbers?: boolean;
   className?: string;
-  theme?: "dark" | "light";
-  defaultDarkTheme?: string;
-  defaultLightTheme?: string;
+  selectedTheme?: string;
 } & React.HTMLAttributes<HTMLDivElement>) {
   const [html, setHtml] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const { resolvedTheme } = useTheme();
 
-  const contentKey = useMemo(() => `${code.slice(0, 100)}-${lang}-${theme || resolvedTheme}-${defaultDarkTheme}-${defaultLightTheme}`, [code, lang, theme, resolvedTheme, defaultDarkTheme, defaultLightTheme]);
+  // Create a content key for caching
+  const contentKey = useMemo(() => {
+    return `${code.slice(0, 100)}-${lang}-${selectedTheme || 'auto'}-${resolvedTheme}`;
+  }, [code, lang, selectedTheme, resolvedTheme]);
+  
   const [lastContentKey, setLastContentKey] = useState(contentKey);
 
   useEffect(() => {
@@ -91,38 +92,14 @@ function ShikiViewer({
     async function highlight() {
       try {
         setIsLoading(true);
-        let shikiTheme: string;
         
-        if (theme === "light") {
-          // Force light theme
-          shikiTheme = defaultLightTheme || "github-light";
-        } else if (theme === "dark") {
-          // Force dark theme
-          shikiTheme = defaultDarkTheme || "github-dark";
-        } else {
-          // Fall back to system theme-based selection
-          shikiTheme = resolvedTheme === "dark" 
-            ? (defaultDarkTheme || "github-dark")
-            : (defaultLightTheme || "github-light");
-        }
-        
-        // Define available themes with Shiki-compatible names
-        const themeMap: Record<string, string> = {
-          "atom-one-dark": "one-dark-pro",
-          "atom-one-light": "github-light", // Fallback since Atom One Light isn't available
-          "github-dark": "github-dark",
-          "github-light": "github-light"
-        };
-        
-        // Get the actual Shiki theme name
-        const actualTheme = themeMap[shikiTheme] || shikiTheme;
-        
-        const themesToLoad = Array.from(new Set([
-          "github-dark",
-          "github-light", 
-          "one-dark-pro",
-          actualTheme // Include the selected theme in case it's different
-        ]));
+        // Resolve the actual Shiki theme name
+        const actualTheme = resolveShikiTheme(
+          selectedTheme === 'auto' ? undefined : selectedTheme,
+          resolvedTheme as 'light' | 'dark' | undefined,
+          'github-light',
+          'github-dark'
+        );
         
         const highlighter = await createHighlighter({
           langs: [
@@ -136,12 +113,14 @@ function ShikiViewer({
             "html",
             "markdown",
           ],
-          themes: themesToLoad,
+          themes: getAllShikiThemeNames(),
         });
+        
         const highlightedHtml = highlighter.codeToHtml(code, {
           lang: lang === "tsx" ? "typescript" : lang,
           theme: actualTheme,
         });
+        
         if (mounted) {
           setHtml(highlightedHtml);
           setIsLoading(false);
@@ -155,11 +134,12 @@ function ShikiViewer({
         }
       }
     }
+    
     highlight();
     return () => {
       mounted = false;
     };
-  }, [contentKey, lastContentKey, code, lang, resolvedTheme, theme, defaultDarkTheme, defaultLightTheme, html]);
+  }, [contentKey, lastContentKey, code, lang, selectedTheme, resolvedTheme, html]);
 
   const addLineNumbers = useCallback((html: string) => {
     if (!showLineNumbers) return html ?? "";
@@ -260,12 +240,16 @@ function FileHeader({
   copied,
   showMarkdownPreview,
   onToggleMarkdown,
+  enableThemePicker,
+  shikiTheme,
 }: {
   file: { path: string; content?: string };
   onCopy: () => void;
   copied: boolean;
   showMarkdownPreview?: boolean;
   onToggleMarkdown?: () => void;
+  enableThemePicker?: boolean;
+  shikiTheme?: { selectedTheme: string; updateTheme: (theme: string) => void };
 }
 ) {
   function getFileType(filePath: string) {
@@ -291,31 +275,40 @@ function FileHeader({
           {file.path}
         </span>
       </div>
-      <div className="flex gap-1">
-        {isMarkdownFile && onToggleMarkdown && (
+      <div className="flex items-center gap-2">
+        {enableThemePicker && shikiTheme && (
+          <CompactThemePicker
+            selectedTheme={shikiTheme.selectedTheme}
+            onThemeChange={shikiTheme.updateTheme}
+            className="text-xs"
+          />
+        )}
+        <div className="flex gap-1">
+          {isMarkdownFile && onToggleMarkdown && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onToggleMarkdown}
+              className="cursor-pointer h-8 w-8 p-0"
+              title={showMarkdownPreview ? "Show raw markdown" : "Preview markdown"}
+            >
+              <Eye className="h-3 w-3" />
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="sm"
-            onClick={onToggleMarkdown}
+            onClick={onCopy}
             className="cursor-pointer h-8 w-8 p-0"
-            title={showMarkdownPreview ? "Show raw markdown" : "Preview markdown"}
+            title="Copy file content"
           >
-            <Eye className="h-3 w-3" />
+            {copied ? (
+              <Check className="h-3 w-3" />
+            ) : (
+              <Copy className="h-3 w-3" />
+            )}
           </Button>
-        )}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onCopy}
-          className="cursor-pointer h-8 w-8 p-0"
-          title="Copy file content"
-        >
-          {copied ? (
-            <Check className="h-3 w-3" />
-          ) : (
-            <Copy className="h-3 w-3" />
-          )}
-        </Button>
+        </div>
       </div>
     </div>
   );
@@ -660,6 +653,7 @@ export default function CodeViewer({
   lang,
   showLineNumbers,
   shikiProps,
+  enableThemePicker = false,
 }: {
   component: TComponent;
   className?: string;
@@ -673,6 +667,8 @@ export default function CodeViewer({
   lang?: string;
   /* Whether to show line numbers */
   showLineNumbers?: boolean;
+  /* Enable the theme picker in the file header */
+  enableThemePicker?: boolean;
   shikiProps?: {
     /* The theme for the code block accepts light or dark*/
     theme?: "dark" | "light";
@@ -694,6 +690,12 @@ export default function CodeViewer({
   const [copied, setCopied] = useState(false);
   const [showMarkdownPreview, setShowMarkdownPreview] = useState(false);
   const files = component.files.filter((f) => f.content);
+  
+  // Theme management
+  const shikiTheme = useShikiTheme({
+    defaultDark: defaultDarkTheme,
+    defaultLight: defaultLightTheme
+  });
   
   // Snap-to-close functionality for the file tree panel
   const snapToCloseHook = useSnapToClosePanel({
@@ -870,6 +872,8 @@ export default function CodeViewer({
                   copied={copied}
                   showMarkdownPreview={showMarkdownPreview}
                   onToggleMarkdown={handleToggleMarkdown}
+                  enableThemePicker={enableThemePicker}
+                  shikiTheme={shikiTheme}
                 />
               </div>
               <div 
@@ -889,9 +893,7 @@ export default function CodeViewer({
                       lang={lang || shikiProps?.lang || selected.path.split(".").pop() || "txt"}
                       showLineNumbers={showLineNumbers ?? shikiProps?.showLineNumbers}
                       className={cn("min-h-full", shikiProps?.className)}
-                      theme={theme || shikiProps?.theme}
-                      defaultDarkTheme={defaultDarkTheme || shikiProps?.defaultDarkTheme || "github-dark"}
-                      defaultLightTheme={defaultLightTheme || shikiProps?.defaultLightTheme || "github-light"}
+                      selectedTheme={shikiTheme.selectedTheme}
                     />
                   )}
                 </ScrollArea>

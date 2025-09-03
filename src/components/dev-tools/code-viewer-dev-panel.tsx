@@ -27,15 +27,17 @@ import { ComponentMetaControls } from './component-meta-controls'
 import { CodeEditor } from './code-editor'
 import { PresetManager } from './preset-manager'
 import { ImportExportControls } from './import-export-controls'
+import { GeneratedCodeView } from './generated-code-view'
 import CodeViewer from '@/components/file-viewer'
 
-type TabId = 'theme' | 'language' | 'meta' | 'code' | 'presets'
+type TabId = 'theme' | 'language' | 'meta' | 'code' | 'generated' | 'presets'
 
 const tabs = [
   { id: 'theme' as TabId, label: 'Theme', icon: Palette },
   { id: 'language' as TabId, label: 'Language', icon: Code },
   { id: 'meta' as TabId, label: 'Meta', icon: FileText },
   { id: 'code' as TabId, label: 'Code', icon: FileText },
+  { id: 'generated' as TabId, label: 'Generated', icon: Code },
   { id: 'presets' as TabId, label: 'Presets', icon: Zap }
 ]
 
@@ -160,6 +162,15 @@ export function CodeViewerDevPanel() {
                       code={devTool.props.sampleCode}
                       language={devTool.props.lang || 'tsx'}
                       onChange={(code) => devTool.updateProp('sampleCode', code)}
+                    />
+                  )}
+                  
+                  {activeTab === 'generated' && (
+                    <GeneratedCodeView
+                      code={devTool.generatedCode}
+                      completeExample={devTool.generatedCompleteExample}
+                      title="Live Generated Code"
+                      language="tsx"
                     />
                   )}
                   
