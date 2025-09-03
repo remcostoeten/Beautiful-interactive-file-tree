@@ -1,5 +1,6 @@
 import './globals.css'
 import '../styles/view-transitions.css'
+import '../styles/snap-to-close-animations.css'
 
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono, Inter, JetBrains_Mono } from 'next/font/google'
@@ -50,6 +51,7 @@ export default function RootLayout({
     return (
         <html lang='en' suppressHydrationWarning>
             <body
+            suppressHydrationWarning
                 className={`${inter.variable} ${jetbrainsMono.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
             >
                 <Providers>{children}</Providers>

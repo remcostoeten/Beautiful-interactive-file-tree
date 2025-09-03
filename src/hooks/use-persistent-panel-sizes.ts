@@ -61,7 +61,6 @@ export function usePersistentPanelSizes({
         [storageKey]
     )
 
-    // Throttled resize handler to prevent excessive storage writes
     const handleResize = useCallback(
         (panelSizes: number[]) => {
             if (panelSizes.length >= 2) {

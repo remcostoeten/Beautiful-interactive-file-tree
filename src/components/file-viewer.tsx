@@ -1,33 +1,15 @@
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
-import {
-  Check,
-  Copy,
-  FileCode,
-  FileIcon,
-  FolderIcon,
-  FolderOpenIcon,
-} from "lucide-react";
+import { Check, Copy, FileCode, FileIcon, FolderIcon, FolderOpenIcon } from "lucide-react";
 import { useTheme } from "next-themes";
-import {
-  createContext,
-  startTransition,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { createContext, startTransition, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { createHighlighter } from "shiki";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
+import { ResizablePanel } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { SnapToCloseResizablePanel, SnapToCloseResizablePanelGroup, useSnapToClosePanel } from "@/components/ui/snap-to-close-resizable";
 import { cn } from "@/lib/utils";
 
 export type TComponent = {
@@ -71,22 +53,30 @@ function useTree(): TCtx {
 
 function ShikiViewer({
   code,
+  /* The language for icon placement and syntax highlighting */
   lang = "tsx",
+  /* Whether to show line numbers */
   showLineNumbers = true,
+  /* The class name for the code block */
   className,
+  theme,
+  defaultDarkTheme,
+  defaultLightTheme,
+  ...props
 }: {
-  // Content data
   code: string;
-  // Display options
   lang?: string;
   showLineNumbers?: boolean;
   className?: string;
-}) {
+  theme?: "dark" | "light";
+  defaultDarkTheme?: string;
+  defaultLightTheme?: string;
+} & React.HTMLAttributes<HTMLDivElement>) {
   const [html, setHtml] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const { resolvedTheme } = useTheme();
 
-  const contentKey = useMemo(() => `${code.slice(0, 100)}-${lang}-${resolvedTheme}`, [code, lang, resolvedTheme]);
+  const contentKey = useMemo(() => `${code.slice(0, 100)}-${lang}-${theme || resolvedTheme}-${defaultDarkTheme}-${defaultLightTheme}`, [code, lang, theme, resolvedTheme, defaultDarkTheme, defaultLightTheme]);
   const [lastContentKey, setLastContentKey] = useState(contentKey);
 
   useEffect(() => {
@@ -98,8 +88,39 @@ function ShikiViewer({
     async function highlight() {
       try {
         setIsLoading(true);
-        const shikiTheme =
-          resolvedTheme === "dark" ? "github-dark" : "github-light";
+        let shikiTheme: string;
+        
+        if (theme === "light") {
+          // Force light theme
+          shikiTheme = defaultLightTheme || "github-light";
+        } else if (theme === "dark") {
+          // Force dark theme
+          shikiTheme = defaultDarkTheme || "github-dark";
+        } else {
+          // Fall back to system theme-based selection
+          shikiTheme = resolvedTheme === "dark" 
+            ? (defaultDarkTheme || "github-dark")
+            : (defaultLightTheme || "github-light");
+        }
+        
+        // Define available themes with Shiki-compatible names
+        const themeMap: Record<string, string> = {
+          "atom-one-dark": "one-dark-pro",
+          "atom-one-light": "github-light", // Fallback since Atom One Light isn't available
+          "github-dark": "github-dark",
+          "github-light": "github-light"
+        };
+        
+        // Get the actual Shiki theme name
+        const actualTheme = themeMap[shikiTheme] || shikiTheme;
+        
+        const themesToLoad = Array.from(new Set([
+          "github-dark",
+          "github-light", 
+          "one-dark-pro",
+          actualTheme // Include the selected theme in case it's different
+        ]));
+        
         const highlighter = await createHighlighter({
           langs: [
             "tsx",
@@ -112,11 +133,11 @@ function ShikiViewer({
             "html",
             "markdown",
           ],
-          themes: [shikiTheme],
+          themes: themesToLoad,
         });
         const highlightedHtml = highlighter.codeToHtml(code, {
           lang: lang === "tsx" ? "typescript" : lang,
-          theme: shikiTheme,
+          theme: actualTheme,
         });
         if (mounted) {
           setHtml(highlightedHtml);
@@ -135,7 +156,7 @@ function ShikiViewer({
     return () => {
       mounted = false;
     };
-  }, [contentKey, lastContentKey, code, lang, resolvedTheme, html]);
+  }, [contentKey, lastContentKey, code, lang, resolvedTheme, theme, defaultDarkTheme, defaultLightTheme, html]);
 
   const addLineNumbers = useCallback((html: string) => {
     if (!showLineNumbers) return html;
@@ -159,7 +180,7 @@ function ShikiViewer({
         .shiki-viewer .line-numbers .line-numbers-rows { display: flex; flex-direction: column; padding-right: 0.2rem; margin-right: 0.8rem; border-right: 1px solid hsl(var(--border)); text-align: right; color: hsl(var(--muted-foreground)); font-size: 0.8755rem; user-select: none; }
         .shiki-viewer .line-numbers .line-numbers-rows > span { display: block; text-align: left';}
       `}</style>
-      <div className={cn("shiki-viewer min-h-[400px]", className)}>
+      <div className={cn("shiki-viewer min-h-[400px]", className)} {...props}>
         {isLoading && !html ? (
           <div className="flex items-center justify-center p-8">
             <div className="animate-pulse text-muted-foreground">
@@ -556,21 +577,57 @@ function FileTree({
   );
 }
 
-// --- Main Component ---
-export default function ComponentFileViewer({
+export default function CodeViewer({
   component,
   className,
+  theme,
+  defaultDarkTheme,
+  defaultLightTheme,
+  lang,
+  showLineNumbers,
+  shikiProps,
 }: {
-  // Component data
   component: TComponent;
-  // Display options
   className?: string;
+  /* The theme for the code block accepts light or dark*/
+  theme?: "dark" | "light";
+  /* The dark theme fallback */
+  defaultDarkTheme?: string;
+  /* The light theme fallback */
+  defaultLightTheme?: string;
+  /* The language for the code block responsible for syntax highlighting and icon placement */
+  lang?: string;
+  /* Whether to show line numbers */
+  showLineNumbers?: boolean;
+  shikiProps?: {
+    /* The theme for the code block accepts light or dark*/
+    theme?: "dark" | "light";
+    /* The dark theme fallback */
+    defaultDarkTheme?: string;
+    /* The light theme fallback */
+    defaultLightTheme?: string;
+    /* The language for the code block responsible for syntax highlighting and icon placement */
+    lang?: string;
+    /* Whether to show line numbers */
+    showLineNumbers?: boolean;
+    /* The class name for the code block */
+    className?: string;
+  } & Omit<React.HTMLAttributes<HTMLDivElement>, 'className'>;
 }) {
   const [selectedFile, setSelectedFile] = useState<string | undefined>(
     undefined
   );
   const [copied, setCopied] = useState(false);
   const files = component.files.filter((f) => f.content);
+  
+  // Snap-to-close functionality for the file tree panel
+  const snapToCloseHook = useSnapToClosePanel({
+    storageKey: `file-tree-panel-${component.name}`,
+    defaultSize: 25,
+    minSize: 15, // Minimum percentage before snapping
+    snapThreshold: 18, // Snap threshold in percentage
+    animationDuration: 300
+  });
 
   // Build tree structure
   const tree = useMemo(function () {
@@ -673,51 +730,88 @@ export default function ComponentFileViewer({
   }, [tree, selectedFile, component]);
 
   return (
-    <ResizablePanelGroup
+    <SnapToCloseResizablePanelGroup
       direction="horizontal"
-      className={cn("min-h-[600px] rounded-lg border overflow-hidden", className)}
-    >
-      <ResizablePanel defaultSize={25} minSize={20} maxSize={40}>
-        {memoizedFileTree}
-      </ResizablePanel>
-      <ResizableHandle withHandle />
-      <ResizablePanel defaultSize={75} minSize={40}>
-        {selected && (
-          <div className="h-full flex flex-col" key={selected.path}>
-            <div 
-              style={{ viewTransitionName: "file-header" }}
-              className="view-transition-header"
-            >
-              <FileHeader
-                file={selected}
-                onCopy={handleCopy}
-                copied={copied}
-              />
-            </div>
-            <div 
-              className="flex-1 overflow-hidden min-h-0"
-              style={{ viewTransitionName: "file-content" }}
-            >
-              <ScrollArea className="w-full h-[calc(100vh-20rem)]">
-                <ShikiViewer
-                  key={selected.path}
-                  code={selected.content || ""}
-                  lang={selected.path.split(".").pop() || "txt"}
-                  className="min-h-full"
+        className={cn("min-h-[600px] rounded-lg border overflow-hidden", className)}
+        onPanelResize={snapToCloseHook.handleResize}
+      >
+        <SnapToCloseResizablePanel 
+          defaultSize={snapToCloseHook.panelState.size}
+          minSize={15} 
+          maxSize={30}
+          storageKey={`file-tree-panel-${component.name}`}
+          enableSnapToClose={true}
+          snapThreshold={18}
+          animationDuration={300}
+          className={cn(
+            "snap-to-close-panel transition-all",
+            snapToCloseHook.panelState.isAnimating && "snap-to-close-panel--animating",
+            snapToCloseHook.panelState.isCollapsed && "snap-to-close-panel--collapsed"
+          )}
+        >
+          <div className={cn(
+            "snap-to-close-content transition-all",
+            snapToCloseHook.panelState.isCollapsed 
+              ? "snap-to-close-content--hidden" 
+              : "snap-to-close-content--visible"
+          )}>
+            {memoizedFileTree}
+          </div>
+          {/* Snap threshold indicator */}
+          <div className={cn(
+            "snap-to-close-threshold-indicator",
+            snapToCloseHook.panelState.size <= 3 && !snapToCloseHook.panelState.isCollapsed && "snap-to-close-threshold-indicator--active"
+          )} />
+        </SnapToCloseResizablePanel>
+{/*         
+        <SnapToCloseResizableHandle 
+          withHandle 
+          snapToCloseHook={snapToCloseHook}
+          showToggleButton={true}
+          className="snap-to-close-handle"
+        />
+         */}
+        <ResizablePanel defaultSize={0} minSize={0}>
+          {selected && (
+            <div className="h-full flex flex-col" key={selected.path}>
+              <div 
+                style={{ viewTransitionName: "file-header" }}
+                className="view-transition-header"
+              >
+                <FileHeader
+                  file={selected}
+                  onCopy={handleCopy}
+                  copied={copied}
                 />
-              </ScrollArea>
+              </div>
+              <div 
+                className="flex-1 overflow-hidden min-h-0"
+                style={{ viewTransitionName: "file-content" }}
+              >
+                <ScrollArea className="w-full h-[calc(100vh-20rem)]">
+                  <ShikiViewer
+                    key={selected.path}
+                    code={selected.content || ""}
+                    lang={lang || shikiProps?.lang || selected.path.split(".").pop() || "txt"}
+                    showLineNumbers={showLineNumbers ?? shikiProps?.showLineNumbers}
+                    className={cn("min-h-full", shikiProps?.className)}
+                    theme={theme || shikiProps?.theme}
+                    defaultDarkTheme={defaultDarkTheme || shikiProps?.defaultDarkTheme || "github-dark"}
+                    defaultLightTheme={defaultLightTheme || shikiProps?.defaultLightTheme || "github-light"}
+                  />
+                </ScrollArea>
+              </div>
             </div>
-          </div>
-        )}
-        {!selected && (
-          <div className="h-full flex items-center justify-center text-muted-foreground">
-            <div className="text-center">
-              <FileCode className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>Select a file to view its contents</p>
+          )}
+          {!selected && (
+            <div className="h-full flex items-center justify-center text-muted-foreground">
+              <div className="text-center">
+                <FileCode className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>Select a file to view its contents</p>
+              </div>
             </div>
-          </div>
-        )}
-      </ResizablePanel>
-    </ResizablePanelGroup>
+          )}
+        </ResizablePanel>
+      </SnapToCloseResizablePanelGroup>
   );
 }

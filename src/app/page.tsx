@@ -3,7 +3,8 @@
 import { ThemeProvider } from 'next-themes'
 import { Toaster } from 'sonner'
 
-import ComponentFileViewer from '@/components/file-viewer'
+import CodeViewer from '@/components/file-viewer'
+import { CodeViewerDevPanel } from '@/components/dev-tools/code-viewer-dev-panel'
 import { data } from '@/data'
 
 function App() {
@@ -24,10 +25,19 @@ function App() {
           </p>
 
           <div className='max-w-7xl mx-auto'>
-            <ComponentFileViewer component={data} />
+            <CodeViewer 
+              theme="dark"
+              defaultDarkTheme="atom-one-dark"
+              defaultLightTheme="atom-one-light"
+              component={data} 
+            />
           </div>
         </div>
       </div>
+      
+      {/* Dev Tools - Only shows in development */}
+      <CodeViewerDevPanel />
+      
       <Toaster />
     </ThemeProvider>
   )
