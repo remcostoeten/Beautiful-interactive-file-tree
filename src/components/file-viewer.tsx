@@ -1,5 +1,6 @@
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
-import { Check, Copy, FileCode, FileIcon, FolderIcon, FolderOpenIcon } from "lucide-react";
+import { Check, Copy, Eye, FileCode, FileIcon, FolderIcon, FolderOpenIcon } from "lucide-react";
+import { marked } from "marked";
 import { useTheme } from "next-themes";
 import React, { createContext, startTransition, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { createHighlighter } from "shiki";
@@ -16,6 +17,7 @@ export type TComponent = {
   name: string;
   version: string;
   showIndentLines?: boolean;
+  enableHoverHighlight?: boolean;
   files: Array<{
     path: string;
     content?: string;
@@ -37,6 +39,7 @@ type TCtx = {
   // Tree display props
   indicator: boolean;
   showIndentLines: boolean;
+  enableHoverHighlight: boolean;
   openIcon?: React.ReactNode;
   closeIcon?: React.ReactNode;
 }
@@ -159,7 +162,7 @@ function ShikiViewer({
   }, [contentKey, lastContentKey, code, lang, resolvedTheme, theme, defaultDarkTheme, defaultLightTheme, html]);
 
   const addLineNumbers = useCallback((html: string) => {
-    if (!showLineNumbers) return html;
+    if (!showLineNumbers) return html ?? "";
     const lines = code.split("\n");
     const lineNumbers = lines.map((_, i) => `<span>${i + 1}</span>`).join("");
     return html.replace(
@@ -173,12 +176,61 @@ function ShikiViewer({
   return (
     <>
       <style>{`
-        .shiki-viewer { border-radius: 0.5rem; overflow: hidden; border: 1px solid hsl(var(--border)); }
-        .shiki-viewer pre { margin: 0; padding: 0.8rem; overflow-x: auto; background: transparent; font-size: 0.875rem; line-height: 1.5; white-space: pre; text-align: left; }
-        .shiki-viewer code { background: transparent; padding: 0; border-radius: 0; font-family: inherit; font-size: inherit; line-height: inherit; white-space: pre; text-align: left; }
-        .shiki-viewer .line-numbers { display: flex; }
-        .shiki-viewer .line-numbers .line-numbers-rows { display: flex; flex-direction: column; padding-right: 0.2rem; margin-right: 0.8rem; border-right: 1px solid hsl(var(--border)); text-align: right; color: hsl(var(--muted-foreground)); font-size: 0.8755rem; user-select: none; }
-        .shiki-viewer .line-numbers .line-numbers-rows > span { display: block; text-align: left';}
+        .shiki-viewer { 
+          border-radius: 0.5rem; 
+          overflow: hidden; 
+          border: 1px solid hsl(var(--border));
+          background: hsl(var(--background));
+        }
+        .shiki-viewer pre { 
+          margin: 0; 
+          padding: 0.8rem; 
+          overflow-x: auto; 
+          background: transparent !important; 
+          font-size: 0.875rem; 
+          line-height: 1.5; 
+          white-space: pre; 
+          text-align: left;
+          color: hsl(var(--foreground));
+        }
+        .shiki-viewer code { 
+          background: transparent !important; 
+          padding: 0; 
+          border-radius: 0; 
+          font-family: inherit; 
+          font-size: inherit; 
+          line-height: inherit; 
+          white-space: pre; 
+          text-align: left;
+          color: inherit;
+        }
+        .shiki-viewer .line-numbers { 
+          display: flex; 
+          background: transparent !important; 
+        }
+        .shiki-viewer .line-numbers pre { 
+          background: transparent !important; 
+        }
+        .shiki-viewer .line-numbers code { 
+          background: transparent !important; 
+        }
+        .shiki-viewer .line-numbers .line-numbers-rows { 
+          display: flex; 
+          flex-direction: column; 
+          padding-right: 0.2rem; 
+          margin-right: 0.8rem; 
+          border-right: 1px solid hsl(var(--border)); 
+          text-align: right; 
+          color: hsl(var(--muted-foreground)); 
+          font-size: 0.8755rem; 
+          user-select: none; 
+          background: transparent !important; 
+        }
+        .shiki-viewer .line-numbers .line-numbers-rows > span { 
+          display: block; 
+          text-align: left; 
+          background: transparent !important; 
+        }
       `}</style>
       <div className={cn("shiki-viewer min-h-[400px]", className)} {...props}>
         {isLoading && !html ? (
@@ -206,10 +258,14 @@ function FileHeader({
   file,
   onCopy,
   copied,
+  showMarkdownPreview,
+  onToggleMarkdown,
 }: {
   file: { path: string; content?: string };
   onCopy: () => void;
   copied: boolean;
+  showMarkdownPreview?: boolean;
+  onToggleMarkdown?: () => void;
 }
 ) {
   function getFileType(filePath: string) {
@@ -223,6 +279,8 @@ function FileHeader({
     return "TXT";
   }
 
+  const isMarkdownFile = file.path.endsWith(".md");
+
   return (
     <div className="flex items-center justify-between px-3 py-1.5 border-b text-left">
       <div className="flex items-center gap-2 min-w-0">
@@ -234,6 +292,17 @@ function FileHeader({
         </span>
       </div>
       <div className="flex gap-1">
+        {isMarkdownFile && onToggleMarkdown && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onToggleMarkdown}
+            className="cursor-pointer h-8 w-8 p-0"
+            title={showMarkdownPreview ? "Show raw markdown" : "Preview markdown"}
+          >
+            <Eye className="h-3 w-3" />
+          </Button>
+        )}
         <Button
           variant="ghost"
           size="sm"
@@ -294,6 +363,7 @@ function Folder({
     expandedItems,
     indicator,
     showIndentLines,
+    enableHoverHighlight,
     openIcon,
     closeIcon,
   } = useTree();
@@ -311,7 +381,7 @@ function Folder({
           "flex w-full items-center gap-2 rounded-md text-sm px-2 py-1.5 transition-all cursor-pointer text-left",
           isExpanded
             ? "bg-accent/50 text-accent-foreground"
-            : "hover:bg-accent hover:text-accent-foreground",
+            : enableHoverHighlight ? "ft-hover-bg" : "ft-hover-none",
           isSelect && isSelectable && "bg-muted",
           !isSelectable && "opacity-50 cursor-not-allowed",
           className
@@ -359,23 +429,23 @@ function File({
   // Event handlers
   onClick?: () => void;
 }) {
-  const { selectedId, selectItem } = useTree();
+  const { selectedId, selectItem, enableHoverHighlight } = useTree();
   const isSelected = isSelect ?? selectedId === value;
 
 
   return (
     <button
       disabled={!isSelectable}
-      className={cn(
-        "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-all cursor-pointer text-left",
-        isSelected && isSelectable
-          ? "bg-primary text-primary-foreground shadow-sm"
-          : "hover:bg-accent hover:text-accent-foreground",
-        !isSelectable
-          ? "opacity-50 cursor-not-allowed"
-          : "",
-        className
-      )}
+        className={cn(
+          "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-all cursor-pointer text-left",
+          isSelected && isSelectable
+            ? "bg-primary text-primary-foreground shadow-sm"
+            : enableHoverHighlight ? "ft-hover-bg" : "ft-hover-none",
+          !isSelectable
+            ? "opacity-50 cursor-not-allowed"
+            : "",
+          className
+        )}
       onClick={() => {
         selectItem(value);
         onClick?.();
@@ -396,6 +466,7 @@ function Tree({
   // Tree display props
   indicator = true,
   showIndentLines = true,
+  enableHoverHighlight = true,
   openIcon,
   closeIcon,
 }: {
@@ -406,6 +477,7 @@ function Tree({
   className?: string;
   indicator?: boolean;
   showIndentLines?: boolean;
+  enableHoverHighlight?: boolean;
   openIcon?: React.ReactNode;
   closeIcon?: React.ReactNode;
 }) {
@@ -456,6 +528,7 @@ function Tree({
         setExpandedItems,
         indicator,
         showIndentLines,
+        enableHoverHighlight,
         openIcon,
         closeIcon,
       }}
@@ -561,6 +634,7 @@ function FileTree({
             initialSelectedId={selectedFile}
             indicator
             showIndentLines={component.showIndentLines ?? true}
+            enableHoverHighlight={component.enableHoverHighlight ?? true}
           >
             {tree.map((item) => (
               <TreeItem
@@ -618,6 +692,7 @@ export default function CodeViewer({
     undefined
   );
   const [copied, setCopied] = useState(false);
+  const [showMarkdownPreview, setShowMarkdownPreview] = useState(false);
   const files = component.files.filter((f) => f.content);
   
   // Snap-to-close functionality for the file tree panel
@@ -703,6 +778,17 @@ export default function CodeViewer({
     }
   }
 
+  function handleToggleMarkdown() {
+    setShowMarkdownPreview(!showMarkdownPreview);
+  }
+
+  const renderedMarkdown = useMemo(() => {
+    if (selected?.content && selected.path.endsWith(".md") && showMarkdownPreview) {
+      return marked(selected.content);
+    }
+    return null;
+  }, [selected?.content, selected?.path, showMarkdownPreview]);
+
   // Handle file selection with view transitions
   function handleFileSelect(file: string) {
     if (!document.startViewTransition) {
@@ -782,6 +868,8 @@ export default function CodeViewer({
                   file={selected}
                   onCopy={handleCopy}
                   copied={copied}
+                  showMarkdownPreview={showMarkdownPreview}
+                  onToggleMarkdown={handleToggleMarkdown}
                 />
               </div>
               <div 
@@ -789,16 +877,23 @@ export default function CodeViewer({
                 style={{ viewTransitionName: "file-content" }}
               >
                 <ScrollArea className="w-full h-[calc(100vh-20rem)]">
-                  <ShikiViewer
-                    key={selected.path}
-                    code={selected.content || ""}
-                    lang={lang || shikiProps?.lang || selected.path.split(".").pop() || "txt"}
-                    showLineNumbers={showLineNumbers ?? shikiProps?.showLineNumbers}
-                    className={cn("min-h-full", shikiProps?.className)}
-                    theme={theme || shikiProps?.theme}
-                    defaultDarkTheme={defaultDarkTheme || shikiProps?.defaultDarkTheme || "github-dark"}
-                    defaultLightTheme={defaultLightTheme || shikiProps?.defaultLightTheme || "github-light"}
-                  />
+                  {renderedMarkdown ? (
+                    <div 
+                      className="prose prose-sm max-w-none p-4 dark:prose-invert"
+                      dangerouslySetInnerHTML={{ __html: renderedMarkdown }}
+                    />
+                  ) : (
+                    <ShikiViewer
+                      key={selected.path}
+                      code={selected.content || ""}
+                      lang={lang || shikiProps?.lang || selected.path.split(".").pop() || "txt"}
+                      showLineNumbers={showLineNumbers ?? shikiProps?.showLineNumbers}
+                      className={cn("min-h-full", shikiProps?.className)}
+                      theme={theme || shikiProps?.theme}
+                      defaultDarkTheme={defaultDarkTheme || shikiProps?.defaultDarkTheme || "github-dark"}
+                      defaultLightTheme={defaultLightTheme || shikiProps?.defaultLightTheme || "github-light"}
+                    />
+                  )}
                 </ScrollArea>
               </div>
             </div>

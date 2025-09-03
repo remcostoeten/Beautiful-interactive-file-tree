@@ -49,6 +49,7 @@ The data structure that defines a component with its files and configuration.
 | `name` | `string` | ✓ | — | Display name of the component |
 | `version` | `string` | ✓ | — | Version string shown in header |
 | `showIndentLines` | `boolean` | ✗ | `true` | Show indent guide lines in tree |
+| `enableHoverHighlight` | `boolean` | ✗ | `true` | Enable subtle background color on hover for file & folder rows |
 | `files` | `Array<TFile>` | ✓ | — | Array of files to display |
 
 ### TFile Structure
@@ -63,6 +64,7 @@ const component: TComponent = {
   name: "my-component",
   version: "1.0.0", 
   showIndentLines: true,
+  enableHoverHighlight: false, // Disable hover highlighting
   files: [
     {
       path: "src/index.tsx",
@@ -91,6 +93,7 @@ Core tree navigation component that renders the file/folder hierarchy.
 | `className` | `string` | ✗ | `undefined` | Additional CSS classes |
 | `indicator` | `boolean` | ✗ | `true` | Show expand/collapse indicators |
 | `showIndentLines` | `boolean` | ✗ | `true` | Show vertical indent guide lines |
+| `enableHoverHighlight` | `boolean` | ✗ | `true` | Enable subtle background color on hover for file & folder rows |
 | `openIcon` | `React.ReactNode` | ✗ | `<FolderOpenIcon />` | Icon for expanded folders |
 | `closeIcon` | `React.ReactNode` | ✗ | `<FolderIcon />` | Icon for collapsed folders |
 
@@ -101,6 +104,7 @@ function CustomTree() {
     <Tree
       indicator={true}
       showIndentLines={false}
+      enableHoverHighlight={true}
       openIcon={<ChevronDown />}
       closeIcon={<ChevronRight />}
     >
@@ -256,7 +260,7 @@ Enhanced resizable panel with snap-to-close functionality and persistence.
 | `children` | `React.ReactNode` | ✓ | — | Panel content |
 | `className` | `string` | ✗ | `undefined` | Additional CSS classes |
 
-*Also inherits all props from `react-resizable-panels` Panel component*
+*Also inherits all props from react-resizable-panels Panel component*
 
 ### Example
 ```tsx
@@ -288,7 +292,7 @@ Resize handle with optional toggle button and snap-to-close integration.
 | `showToggleButton` | `boolean` | ✗ | `false` | Show collapse/expand button |
 | `className` | `string` | ✗ | `undefined` | Additional CSS classes |
 
-*Also inherits all props from `react-resizable-panels` PanelResizeHandle component*
+*Also inherits all props from react-resizable-panels PanelResizeHandle component*
 
 ### Example
 ```tsx
@@ -376,7 +380,7 @@ ComponentFileViewer (main container)
 
 ### Key Integration Points
 
-**Tree → Folder/File**: Tree provides context via `TreeContext`, Folder/File consume it for state management.
+**Tree → Folder/File**: Tree provides context via TreeContext, Folder/File consume it for state management.
 
 **FileTree → Tree**: FileTree builds the tree structure from flat file paths and passes it to Tree.
 
@@ -388,12 +392,13 @@ ComponentFileViewer (main container)
 
 ### Customization Strategies
 
-1. **Theme Integration**: All components respect `next-themes` context for dark/light mode
-2. **Icon Replacement**: Most icons are customizable via props (`openIcon`, `closeIcon`, `fileIcon`)
-3. **Styling**: All components accept `className` for Tailwind CSS customization
-4. **State Management**: Tree state is controllable via `initialSelectedId` and `initialExpandedItems`
+1. **Theme Integration**: All components respect next-themes context for dark/light mode
+2. **Icon Replacement**: Most icons are customizable via props (openIcon, closeIcon, fileIcon)
+3. **Styling**: All components accept className for Tailwind CSS customization
+4. **State Management**: Tree state is controllable via initialSelectedId and initialExpandedItems
 5. **Panel Behavior**: Snap-to-close behavior is fully configurable via hook parameters
 6. **Content Processing**: File content can be preprocessed before passing to ShikiViewer
+7. **Hover Effects**: Hover highlighting can be toggled on/off via enableHoverHighlight prop
 
 ### Performance Optimizations
 

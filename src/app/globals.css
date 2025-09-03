@@ -393,4 +393,187 @@
         font-feature-settings: 'tnum' 1;
         font-variant-numeric: tabular-nums;
     }
+
+    /* ===== FILE TREE HOVER UTILITIES ===== */
+    
+    /* Enabled hover highlight for file tree items */
+    .ft-hover-bg:hover {
+        background-color: hsl(var(--accent) / 0.5);
+        color: hsl(var(--accent-foreground));
+    }
+    
+    /* Disabled hover highlight for file tree items */
+    .ft-hover-none:hover {
+        background-color: transparent;
+    }
+
+    /* ===== PROSE STYLES FOR MARKDOWN ===== */
+    
+    .prose {
+        color: hsl(var(--foreground));
+        max-width: 65ch;
+        line-height: 1.75;
+    }
+    
+    .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+        color: hsl(var(--foreground));
+        font-weight: 600;
+        line-height: 1.25;
+        margin-top: 1.5em;
+        margin-bottom: 0.5em;
+    }
+    
+    .prose h1 { font-size: 2.25em; }
+    .prose h2 { font-size: 1.875em; }
+    .prose h3 { font-size: 1.5em; }
+    .prose h4 { font-size: 1.25em; }
+    .prose h5 { font-size: 1.125em; }
+    .prose h6 { font-size: 1em; }
+    
+    .prose p {
+        margin-top: 1.25em;
+        margin-bottom: 1.25em;
+    }
+    
+    .prose a {
+        color: hsl(var(--primary));
+        text-decoration: underline;
+        font-weight: 500;
+    }
+    
+    .prose a:hover {
+        color: hsl(var(--primary) / 0.8);
+    }
+    
+    .prose strong {
+        color: hsl(var(--foreground));
+        font-weight: 600;
+    }
+    
+    .prose em {
+        font-style: italic;
+    }
+    
+    .prose code {
+        color: hsl(var(--foreground));
+        background-color: hsl(var(--muted));
+        padding: 0.125rem 0.25rem;
+        border-radius: 0.25rem;
+        font-size: 0.875em;
+        font-weight: 600;
+    }
+    
+    .prose pre {
+        background-color: hsl(var(--muted));
+        border-radius: 0.5rem;
+        padding: 1rem;
+        overflow-x: auto;
+        margin-top: 1.5em;
+        margin-bottom: 1.5em;
+    }
+    
+    .prose pre code {
+        background-color: transparent;
+        padding: 0;
+        font-weight: 400;
+        color: inherit;
+    }
+    
+    .prose blockquote {
+        font-weight: 500;
+        font-style: italic;
+        color: hsl(var(--muted-foreground));
+        border-left: 0.25rem solid hsl(var(--border));
+        padding-left: 1rem;
+        margin-top: 1.5em;
+        margin-bottom: 1.5em;
+    }
+    
+    .prose ul, .prose ol {
+        margin-top: 1.25em;
+        margin-bottom: 1.25em;
+        padding-left: 1.625em;
+    }
+    
+    .prose li {
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
+    }
+    
+    .prose table {
+        width: 100%;
+        table-layout: auto;
+        text-align: left;
+        margin-top: 2em;
+        margin-bottom: 2em;
+        border-collapse: collapse;
+    }
+    
+    .prose thead {
+        border-bottom: 1px solid hsl(var(--border));
+    }
+    
+    .prose thead th {
+        color: hsl(var(--foreground));
+        font-weight: 600;
+        vertical-align: bottom;
+        padding-bottom: 0.5rem;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+    
+    .prose tbody tr {
+        border-bottom: 1px solid hsl(var(--border));
+    }
+    
+    .prose tbody td {
+        vertical-align: baseline;
+        padding: 0.5rem;
+    }
+    
+    .prose hr {
+        border: none;
+        border-top: 1px solid hsl(var(--border));
+        margin-top: 3em;
+        margin-bottom: 3em;
+    }
+    
+    .prose img {
+        margin-top: 2em;
+        margin-bottom: 2em;
+        max-width: 100%;
+        height: auto;
+    }
+    
+    .prose-sm {
+        font-size: 0.875rem;
+        line-height: 1.7142857;
+    }
+    
+    .prose-sm h1 { font-size: 2.1428571em; }
+    .prose-sm h2 { font-size: 1.7142857em; }
+    .prose-sm h3 { font-size: 1.2857143em; }
+    .prose-sm h4 { font-size: 1.1428571em; }
+    
+    .prose-sm p {
+        margin-top: 1.1428571em;
+        margin-bottom: 1.1428571em;
+    }
+    
+    .prose-sm blockquote {
+        margin-top: 1.3333333em;
+        margin-bottom: 1.3333333em;
+        padding-left: 1.1111111em;
+    }
+    
+    .prose-sm ul, .prose-sm ol {
+        margin-top: 1.1428571em;
+        margin-bottom: 1.1428571em;
+        padding-left: 1.5714286em;
+    }
+    
+    .prose-sm li {
+        margin-top: 0.2857143em;
+        margin-bottom: 0.2857143em;
+    }
 }

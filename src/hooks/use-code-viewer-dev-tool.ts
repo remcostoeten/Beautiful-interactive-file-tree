@@ -1,6 +1,7 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useMemo } from 'react'
+import { generateCodeViewerJSX, generateCompleteExample } from '@/lib/generate-code'
 
 export type CodeViewerDevProps = {
   // Theme props
@@ -15,6 +16,9 @@ export type CodeViewerDevProps = {
   // Component meta
   componentName: string
   componentVersion: string
+  
+  // Tree UI
+  enableHoverHighlight?: boolean
   
   // Content
   sampleCode: string
@@ -31,25 +35,16 @@ const DEFAULT_PROPS: CodeViewerDevProps = {
   showLineNumbers: true,
   componentName: "file-viewer",
   componentVersion: "1.0.0",
-  sampleCode: `import React from 'react'
-import { Button } from '@/components/ui/button'
-
-export function ExampleComponent() {
-  const [count, setCount] = React.useState(0)
-  
-  return (
-    <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold">Counter Example</h1>
-      <p>Current count: {count}</p>
-      <Button 
-        onClick={() => setCount(count + 1)}
-        className="bg-blue-500 hover:bg-blue-600"
-      >
-        Increment
-      </Button>
-    </div>
-  )
-}`,
+  enableHoverHighlight: true,
+  sampleCode: `<CodeViewer
+  component={componentData}
+  theme="dark"
+  defaultDarkTheme="one-dark-pro"
+  defaultLightTheme="github-light"
+  lang="tsx"
+  showLineNumbers={true}
+  className="max-w-4xl"
+/>`,
   className: ""
 }
 
@@ -331,6 +326,7 @@ class UserService {
     name: state.props.componentName,
     version: state.props.componentVersion,
     showIndentLines: true,
+    enableHoverHighlight: state.props.enableHoverHighlight,
     files: [
       {
         path: `src/example.${state.props.lang === 'tsx' ? 'tsx' : state.props.lang === 'typescript' ? 'ts' : state.props.lang === 'javascript' ? 'js' : state.props.lang}`,
@@ -339,12 +335,25 @@ class UserService {
     ]
   }
 
+  // Generate live code - memoized for performance
+  const generatedCode = useMemo(() => {
+    return generateCodeViewerJSX(state.props, { format: 'pretty' })
+  }, [state.props])
+
+  const generatedCompleteExample = useMemo(() => {
+    return generateCompleteExample(state.props, { format: 'pretty' })
+  }, [state.props])
+
   return {
     // State
     isOpen: state.isOpen,
     props: state.props,
     presets: Object.keys(state.presets),
     componentData,
+    
+    // Generated code
+    generatedCode,
+    generatedCompleteExample,
     
     // Available options
     availableThemes: AVAILABLE_THEMES,

@@ -1,6 +1,7 @@
 'use client'
 
-import { Package, Tag, Type } from 'lucide-react'
+import { Package, Tag, Type, MousePointer } from 'lucide-react'
+import * as Switch from '@radix-ui/react-switch'
 import type { CodeViewerDevProps } from '@/hooks/use-code-viewer-dev-tool'
 
 type ComponentMetaControlsProps = {
@@ -66,13 +67,36 @@ export function ComponentMetaControls({ props, updateProp }: ComponentMetaContro
         </p>
       </div>
 
+      <div>
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <label htmlFor="enable-hover-highlight" className="text-sm font-medium flex items-center gap-2">
+              <MousePointer className="w-4 h-4" />
+              Enable Hover Highlight
+            </label>
+            <p className="text-xs text-muted-foreground">
+              Show background color on hover for file & folder rows
+            </p>
+          </div>
+          <Switch.Root
+            id="enable-hover-highlight"
+            checked={props.enableHoverHighlight ?? true}
+            onCheckedChange={(checked) => updateProp('enableHoverHighlight', checked)}
+            className="w-11 h-6 bg-muted rounded-full relative focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 data-[state=checked]:bg-primary"
+          >
+            <Switch.Thumb className="block w-5 h-5 bg-background rounded-full transition-transform duration-100 translate-x-0.5 data-[state=checked]:translate-x-[22px]" />
+          </Switch.Root>
+        </div>
+      </div>
+
       <div className="pt-2 border-t">
         <div className="text-xs text-muted-foreground">
           <p className="mb-1">Current values:</p>
           <div className="bg-muted p-2 rounded text-xs font-mono">
             name: "{props.componentName}"<br />
             version: "{props.componentVersion}"<br />
-            className: "{props.className || '(none)'}"
+            className: "{props.className || '(none)'}"<br />
+            enableHoverHighlight: {props.enableHoverHighlight ? 'true' : 'false'}
           </div>
         </div>
       </div>
