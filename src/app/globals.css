@@ -419,8 +419,12 @@
         color: hsl(var(--foreground));
         font-weight: 600;
         line-height: 1.25;
-        margin-top: 1.5em;
+        margin-top: 0.5em;
         margin-bottom: 0.5em;
+    }
+    
+    .prose h1:first-child {
+        margin-top: 0;
     }
     
     .prose h1 { font-size: 2.25em; }
@@ -470,6 +474,7 @@
         overflow-x: auto;
         margin-top: 1.5em;
         margin-bottom: 1.5em;
+        border: 1px solid hsl(var(--border));
     }
     
     .prose pre code {
@@ -477,6 +482,23 @@
         padding: 0;
         font-weight: 400;
         color: inherit;
+        font-family: var(--font-jetbrains-mono), var(--font-geist-mono), 'JetBrains Mono', monospace;
+    }
+    
+    .prose code[class*="language-"] {
+        color: hsl(var(--foreground));
+        background: transparent;
+        text-shadow: none;
+        font-family: var(--font-jetbrains-mono), var(--font-geist-mono), 'JetBrains Mono', monospace;
+        font-size: 0.875em;
+        line-height: 1.5;
+        direction: ltr;
+        text-align: left;
+        white-space: pre;
+        word-spacing: normal;
+        word-break: normal;
+        tab-size: 4;
+        hyphens: none;
     }
     
     .prose blockquote {

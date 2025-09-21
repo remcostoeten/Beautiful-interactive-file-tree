@@ -14,7 +14,7 @@ export const data: TTComponent = {
   showIndentLines: true,
   files: [
     {
-      path: "src/components/component-props.ts",
+      path: "props.md",
       content: `# Props Documentation - Beautiful File Tree v2
 
 A comprehensive guide to all customizable props for maximum modularity and flexibility.
